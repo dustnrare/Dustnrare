@@ -25,7 +25,7 @@ export default function CartDrawer() {
     closeCart();
     window.location.href = "/checkout";
   }
-
+  // 
   return (
     <>
       {/* Overlay */}
