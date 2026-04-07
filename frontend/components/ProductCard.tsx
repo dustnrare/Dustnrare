@@ -22,6 +22,7 @@ export default function ProductCard({ product, delay = 0 }: Props) {
 
   function handleQuickAdd(e: React.MouseEvent) {
     e.preventDefault()
+    if (product.stock === 0) { toast.error('Product is out of stock'); return; }
     const size = selectedSize || product.sizes[0]
     addItem(product, size, 1)
     toast.success(`${product.name} added ✦`)
@@ -50,11 +51,16 @@ export default function ProductCard({ product, delay = 0 }: Props) {
               {product.badge}
             </span>
           )}
-          {product.stock <= 4 && (
+          {product.stock === 0 ? (
+            <span className="absolute top-3 right-3 z-10 text-[0.42rem] tracking-[0.35em] uppercase px-2.5 py-1.5 bg-red-600 text-white font-semibold">
+              Out of Stock
+            </span>
+          ) : product.stock <= 4 ? (
             <span className="absolute top-3 right-3 z-10 text-[0.42rem] tracking-[0.35em] uppercase px-2.5 py-1.5 border border-white/50 text-white bg-black/30 backdrop-blur-sm font-semibold">
               Only {product.stock} left
             </span>
-          )}
+          ) : null}
+
           <Image
             src={mainImg}
             alt={product.name}
@@ -67,14 +73,19 @@ export default function ProductCard({ product, delay = 0 }: Props) {
           <div className={`absolute inset-x-0 bottom-0 p-4 transition-all duration-400 ${hovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
             <button
               onClick={handleQuickAdd}
-              className="w-full bg-[var(--offwhite)] text-[var(--text)] text-[0.48rem] tracking-[0.35em] uppercase py-3 font-semibold hover:bg-[var(--gold)] hover:text-white transition-all duration-300"
+              disabled={product.stock === 0}
+              className={`w-full text-[0.48rem] tracking-[0.35em] uppercase py-3 font-semibold transition-all duration-300 ${
+                product.stock === 0
+                  ? 'bg-[#e5e5e5] text-gray-500 cursor-not-allowed'
+                  : 'bg-[var(--offwhite)] text-[var(--text)] hover:bg-[var(--gold)] hover:text-white'
+              }`}
             >
-              + Quick Add
+              {product.stock === 0 ? 'Out of Stock' : '+ Quick Add'}
             </button>
           </div>
 
           {/* Size selector on hover */}
-          {hovered && product.sizes.length > 0 && (
+          {hovered && product.sizes.length > 0 && product.stock > 0 && (
             <div className="absolute top-0 left-0 right-0 p-3 flex flex-wrap gap-1 bg-gradient-to-b from-black/30 to-transparent">
               {product.sizes.map(sz => (
                 <button

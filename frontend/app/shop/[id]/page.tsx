@@ -24,6 +24,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   }, [params.id])
 
   function handleAddToCart() {
+    if (product?.stock === 0) { toast.error('Product is out of stock'); return; }
     if (!product || !size) { toast.error('Please select a size'); return }
     addItem(product, size, qty)
     setAdded(true)
@@ -89,9 +90,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               )}
             </div>
 
-            {product.stock <= 4 && (
+            {product.stock === 0 ? (
+              <p className="text-[0.52rem] text-red-600 font-bold tracking-widest uppercase mb-4">Out of Stock</p>
+            ) : product.stock <= 4 ? (
               <p className="text-[0.52rem] text-red-400 tracking-widest uppercase mb-4">⚠ Only {product.stock} left</p>
-            )}
+            ) : null}
 
             <div className="h-px bg-[var(--border)] my-5" />
 
@@ -126,13 +129,16 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
             <button
               onClick={handleAddToCart}
+              disabled={product.stock === 0}
               className={`w-full py-4 text-[0.62rem] tracking-[0.25em] uppercase font-medium transition-all mb-3 ${
-                added
-                  ? 'bg-[var(--sage)] text-[var(--text)]'
-                  : 'bg-[var(--text)] text-[var(--offwhite)] hover:bg-[var(--gold)]'
+                product.stock === 0
+                  ? 'bg-[#e5e5e5] text-gray-500 cursor-not-allowed'
+                  : added
+                    ? 'bg-[var(--sage)] text-[var(--text)]'
+                    : 'bg-[var(--text)] text-[var(--offwhite)] hover:bg-[var(--gold)]'
               }`}
             >
-              {added ? 'Added to Bag ✓' : 'Add to Bag'}
+              {product.stock === 0 ? 'Out of Stock' : added ? 'Added to Bag ✓' : 'Add to Bag'}
             </button>
 
             {/* DETAILS */}
