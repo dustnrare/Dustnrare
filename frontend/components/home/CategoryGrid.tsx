@@ -3,18 +3,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { productsApi } from "@/lib/api";
 
-const CATEGORIES = [
+const INITIAL_CATEGORIES = [
   {
     id: "men",
     label: "Men",
-    count: "12 Pieces",
+    count: "...",
     img: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80",
   },
   {
     id: "women",
     label: "Women",
-    count: "8 Pieces",
+    count: "...",
     img: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=80",
   },
   {
@@ -32,6 +34,27 @@ const CATEGORIES = [
 ];
 
 export default function CategoryGrid() {
+  const [categories, setCategories] = useState(INITIAL_CATEGORIES);
+
+  useEffect(() => {
+    async function loadCounts() {
+      try {
+        const products = await productsApi.getAll();
+        const menCount = products.filter(p => p.category === 'men').length;
+        const womenCount = products.filter(p => p.category === 'women').length;
+        
+        setCategories(prev => prev.map(c => {
+          if (c.id === 'men') return { ...c, count: `${menCount} Pieces` };
+          if (c.id === 'women') return { ...c, count: `${womenCount} Pieces` };
+          return c;
+        }));
+      } catch (err) {
+        // Leave defaults if fetch fails
+      }
+    }
+    loadCounts();
+  }, []);
+
   return (
     <section className="py-28 bg-[var(--bg)]">
       <div className="max-w-[1360px] mx-auto px-6 md:px-12">
@@ -51,7 +74,7 @@ export default function CategoryGrid() {
 
         {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {CATEGORIES.map((cat, i) => (
+          {categories.map((cat, i) => (
             <motion.div
               key={cat.id}
               initial={{ opacity: 0, y: 40 }}
@@ -82,7 +105,7 @@ export default function CategoryGrid() {
                       {cat.label}
                     </h3>
 
-                    <p className="text-[0.7rem] tracking-[0.25em] uppercase text-[var(--text-muted)] mt-1">
+                    <p className="text-[0.7rem] tracking-[0.25em] uppercase text-[var(--mid)] mt-1 transition-opacity">
                       {cat.count}
                     </p>
                   </div>

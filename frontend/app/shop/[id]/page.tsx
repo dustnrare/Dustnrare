@@ -91,9 +91,17 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             </div>
 
             {product.stock === 0 ? (
-              <p className="text-[0.52rem] text-red-600 font-bold tracking-widest uppercase mb-4">Out of Stock</p>
-            ) : product.stock <= 4 ? (
-              <p className="text-[0.52rem] text-red-400 tracking-widest uppercase mb-4">⚠ Only {product.stock} left</p>
+              <div className="mb-4 inline-block bg-gray-100 text-gray-500 px-3 py-1.5 text-[0.52rem] font-bold tracking-widest uppercase">
+                Out of Stock
+              </div>
+            ) : product.stock <= 5 ? (
+              <div className="flex items-center gap-2 mb-4 bg-red-50 border border-red-100/50 text-red-600 px-3 py-2 w-fit">
+                 <span className="relative flex h-2 w-2">
+                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                   <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                 </span>
+                 <p className="text-[0.52rem] font-bold tracking-widest uppercase mt-[1px]">Limited Stock — Fast Selling</p>
+               </div>
             ) : null}
 
             <div className="h-px bg-[var(--border)] my-5" />
@@ -141,17 +149,18 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               {product.stock === 0 ? 'Out of Stock' : added ? 'Added to Bag ✓' : 'Add to Bag'}
             </button>
 
-            {/* DETAILS */}
-            <div className="space-y-3 mb-6 mt-3">
+            {/* DETAILS & TRUST SIGNALS */}
+            <div className="space-y-3 mb-6 mt-4">
               {[
-                ['◈', product.fabric],
-                ['⟡', 'Free shipping on orders above ₹999'],
-                ['◎', 'Easy returns within 7 days'],
-                ['✦', 'Pay via UPI / Bank Transfer'],
-              ].map(([icon, text]) => (
-                <div key={text} className="flex gap-3 py-3 border-b border-[var(--border)]">
-                  <span className="text-[var(--gold)] text-sm w-5">{icon}</span>
-                  <span className="text-[0.63rem] text-[var(--mid)] leading-relaxed">{text}</span>
+                ['📦', 'Free shipping over ₹1999', 'font-medium text-[var(--gold)]'],
+                ['⚡', 'Dispatch within 24 hours', 'text-[var(--text)]'],
+                ['◎', '7-day hassle-free returns', 'text-[var(--text)]'],
+                ['🛡️', '100% secure encrypted checkout', 'text-[var(--light)]'],
+                ['◈', `Fabric: ${product.fabric || 'Premium blend'}`, 'text-[var(--mid)]'],
+              ].map(([icon, text, styleClass]) => (
+                <div key={text as string} className="flex gap-4 py-2.5 border-b border-[var(--border)] last:border-0">
+                  <span className="text-sm w-5 text-center">{icon}</span>
+                  <span className={`text-[0.6rem] tracking-[0.05em] uppercase ${styleClass}`}>{text}</span>
                 </div>
               ))}
             </div>
