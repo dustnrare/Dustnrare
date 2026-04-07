@@ -5,7 +5,7 @@ import BrandIdentity from "@/components/home/BrandIdentity";
 import CategoryGrid from "@/components/home/CategoryGrid";
 import DropCountdown from "@/components/home/DropCountdown";
 import Reviews from "@/components/home/Reviews";
-import Newsletter from "@/components/home/Newsletter";
+import BrandShowcase from "@/components/home/BrandShowcase";
 import Footer from "@/components/Footer";
 
 export default function HomePage() {
@@ -18,7 +18,7 @@ export default function HomePage() {
       <CategoryGrid />
       {/* <DropCountdown targetDate="2025-06-01T00:00:00" /> */}
       <Reviews />
-      <Newsletter />
+      <BrandShowcase />
       <Footer />
     </>
   );

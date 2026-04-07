@@ -6,7 +6,7 @@ import Image from "next/image";
 import { adminApi } from "@/lib/api";
 import toast from "react-hot-toast";
 
-type Section = "overview" | "products" | "upload" | "orders";
+type Section = "overview" | "products" | "upload" | "orders" | "lookbook";
 const SIZES_LIST = ["XS", "S", "M", "L", "XL", "XXL"];
 
 interface Product {
@@ -35,6 +35,8 @@ export default function AdminPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [revenue, setRevenue] = useState(0);
+  const [lookbook, setLookbook] = useState<any[]>([]);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const [uploading, setUploading] = useState(false);
   const [imgUrls, setImgUrls] = useState<string[]>([]);
@@ -65,6 +67,7 @@ export default function AdminPage() {
     if (authenticated && password) {
       fetchProducts();
       fetchOrders();
+      fetchLookbook();
     }
   }, [authenticated, password]);
 
@@ -117,6 +120,15 @@ export default function AdminPage() {
     } catch (err: any) {
       console.error('Orders fetch error:', err)
       toast.error('Failed to load orders: ' + (err.message || 'Network error'))
+    }
+  }
+
+  async function fetchLookbook() {
+    try {
+      const data = await adminApi.getLookbook(password);
+      setLookbook(data);
+    } catch {
+      toast.error("Failed to load lookbook");
     }
   }
 
@@ -257,13 +269,22 @@ export default function AdminPage() {
     { key: "orders", icon: "◫", label: "Orders" },
     { key: "products", icon: "◈", label: "Products" },
     { key: "upload", icon: "⊕", label: "Add Product" },
+    { key: "lookbook", icon: "◭", label: "Lookbook" },
   ];
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex flex-col md:flex-row min-h-screen relative">
+      {/* MOBILE TOP BAR */}
+      <div className="md:hidden flex items-center justify-between p-4 bg-[var(--text)] text-white sticky top-0 z-50">
+        <p className="font-serif tracking-[0.2em]">DUST·N·RARE Admin</p>
+        <button onClick={() => setMenuOpen(!menuOpen)} className="text-xl">
+          {menuOpen ? '✕' : '☰'}
+        </button>
+      </div>
+
       {/* SIDEBAR */}
-      <aside className="w-56 bg-[var(--text)] flex flex-col flex-shrink-0 sticky top-0 h-screen">
-        <div className="px-5 py-6 border-b border-white/10">
+      <aside className={`${menuOpen ? "flex" : "hidden"} md:flex w-full md:w-56 bg-[var(--text)] flex-col flex-shrink-0 md:sticky md:top-0 h-auto md:h-screen absolute md:relative z-40`}>
+        <div className="px-5 py-6 border-b border-white/10 hidden md:block">
           <p className="font-serif text-base tracking-[0.2em] text-white">
             DUST<span className="text-[var(--gold)]">·</span>N
             <span className="text-[var(--gold)]">·</span>RARE
@@ -276,8 +297,8 @@ export default function AdminPage() {
           {nav.map((item) => (
             <button
               key={item.key}
-              onClick={() => setSection(item.key)}
-              className={`w-full flex items-center gap-3 px-5 py-3 text-[0.58rem] tracking-[0.1em] uppercase transition-all ${section === item.key
+              onClick={() => { setSection(item.key); setMenuOpen(false); }}
+              className={`w-full flex items-center gap-3 px-5 py-4 overflow-hidden text-[0.58rem] tracking-[0.1em] uppercase transition-all ${section === item.key
                 ? "bg-[var(--gold)]/20 text-[var(--gold)] border-l-2 border-[var(--gold)]"
                 : "text-white/50 hover:text-white/85 hover:bg-white/5"
                 }`}
@@ -609,6 +630,102 @@ export default function AdminPage() {
                 </div>
               </motion.div>
             )}
+            {/* ── LOOKBOOK ── */}
+            {section === "lookbook" && (
+              <motion.div key="lookbook" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-[0.6rem] tracking-widest uppercase text-[var(--mid)]">{lookbook.length} shoots</span>
+                </div>
+                
+                {/* UPLOAD FORM */}
+                <div className="bg-[var(--beige)] border border-[var(--border)] p-5 mb-8">
+                  <h3 className="text-[0.55rem] tracking-widest uppercase text-[var(--gold)] mb-4">Add a new look</h3>
+                  <div className="grid md:grid-cols-[1fr_2fr_1fr] gap-4 items-end">
+                    <div>
+                      <label className="block text-[0.45rem] tracking-[0.2em] uppercase text-[var(--mid)] mb-1.5">Image File (1)</label>
+                      <input type="file" onChange={handleImageUpload} disabled={uploading} className="block w-full text-[0.55rem] py-1 text-[var(--mid)]" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                       <div>
+                         <label className="block text-[0.45rem] tracking-[0.2em] uppercase text-[var(--mid)] mb-1.5">Title</label>
+                         <input id="l-title" type="text" className="input-base text-[0.6rem]" placeholder="Look 01 — Sand" />
+                       </div>
+                       <div>
+                         <label className="block text-[0.45rem] tracking-[0.2em] uppercase text-[var(--mid)] mb-1.5">Description/Sub</label>
+                         <input id="l-sub" type="text" className="input-base text-[0.6rem]" placeholder="Void Jacket + Ash Trouser" />
+                       </div>
+                    </div>
+                    <button
+                      onClick={async () => {
+                         const title = (document.getElementById('l-title') as HTMLInputElement)?.value;
+                         const sub = (document.getElementById('l-sub') as HTMLInputElement)?.value;
+                         if (!imgUrls[0] || !title) return toast.error('Upload image and add title');
+                         try {
+                           await adminApi.createLookbookItem(password, { 
+                             title, 
+                             sub, 
+                             image_url: imgUrls[imgUrls.length - 1], 
+                             sort_order: lookbook.length + 1 
+                           });
+                           toast.success('Lookbook updated!');
+                           setImgUrls([]); fetchLookbook();
+                         } catch (e: any) { toast.error(e.message); }
+                      }}
+                      className="btn-primary w-full py-3"
+                    >Submit</button>
+                  </div>
+                </div>
+
+                <div className="bg-[var(--offwhite)] border border-[var(--border)] overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-[var(--border)]">
+                        {["Image", "Title", "Sub", "Date", "Action"].map((h) => (
+                          <th key={h} className="px-4 py-3 text-left text-[0.48rem] tracking-[0.25em] uppercase text-[var(--light)] font-medium">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {lookbook.length > 0 ? (
+                        lookbook.map((l: any) => (
+                          <tr key={l.id} className="border-b border-[var(--border)] hover:bg-[var(--beige)]/30 transition-colors">
+                            <td className="px-4 py-3">
+                              <div className="w-10 h-14 bg-[var(--beige)]">
+                                <Image src={l.image_url} alt="" width={40} height={56} className="object-cover w-full h-full" />
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-[0.63rem] font-medium text-[var(--text)]">{l.title}</td>
+                            <td className="px-4 py-3 text-[0.6rem] text-[var(--mid)]">{l.sub || "—"}</td>
+                            <td className="px-4 py-3 text-[0.55rem] text-[var(--light)]">
+                              {new Date(l.created_at).toLocaleDateString()}
+                            </td>
+                            <td className="px-4 py-3">
+                               <button onClick={async () => {
+                                 if(!confirm('Delete lookbook shoot?')) return;
+                                 try { 
+                                   await adminApi.deleteLookbookItem(password, l.id); 
+                                   toast.success('Deleted shoot'); 
+                                   fetchLookbook(); 
+                                 } catch { toast.error('Failed to delete') }
+                               }} className="text-[0.48rem] tracking-widest uppercase border border-[var(--border)] px-2 py-1 text-[var(--mid)] hover:border-red-400 hover:text-red-400 transition-all">
+                                 Delete
+                               </button>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5} className="text-center py-12 text-[0.6rem] tracking-widest uppercase text-[var(--light)]">
+                            No lookbook entries
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            )}
+
           </AnimatePresence>
         </div>
       </main>

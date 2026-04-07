@@ -2,58 +2,26 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Metadata } from 'next'
 import Footer from '@/components/Footer'
+import { supabase } from '@/lib/supabase'
 
 export const metadata: Metadata = {
   title: 'Lookbook — DUST·N·RARE',
   description: 'SS \'25 Editorial — Shot in New Delhi.',
 }
 
-const LOOKS = [
-  {
-    id: 1, title: 'Look 01 — The Wanderer',
-    sub: 'Void Jacket + Ash Trouser',
-    img: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=900&q=80',
-    span: 'lg:col-span-2 lg:row-span-2',
-    aspect: 'aspect-[4/5]',
-  },
-  {
-    id: 2, title: 'Look 02 — Stillness',
-    sub: 'Sand Tunic + Raw Trouser',
-    img: 'https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=700&q=80',
-    span: '',
-    aspect: 'aspect-[3/4]',
-  },
-  {
-    id: 3, title: 'Look 03 — The Rare One',
-    sub: 'Cocoon Coat — Solo',
-    img: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=700&q=80',
-    span: '',
-    aspect: 'aspect-[3/4]',
-  },
-  {
-    id: 4, title: 'Look 04 — Dusk',
-    sub: 'Full Collection Styling',
-    img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&q=80',
-    span: 'lg:col-span-2',
-    aspect: 'aspect-[16/9]',
-  },
-  {
-    id: 5, title: 'Look 05 — Grain & Light',
-    sub: 'Dust Linen Shirt',
-    img: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=700&q=80',
-    span: '',
-    aspect: 'aspect-[3/4]',
-  },
-  {
-    id: 6, title: 'Look 06 — Archive',
-    sub: 'Worn Denim — Surplus Edit',
-    img: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=700&q=80',
-    span: '',
-    aspect: 'aspect-[3/4]',
-  },
-]
+export const revalidate = 60; // Revalidate every 60 seconds
 
-export default function LookbookPage() {
+export default async function LookbookPage() {
+  // Fetch from Supabase directly in the Server Component
+  const { data: looks } = await supabase
+    .from('lookbook')
+    .select('*')
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: false });
+
+  // Use a fallback in case the table is empty or the user hasn't created it yet
+  const displayLooks = looks?.length ? looks : [];
+
   return (
     <>
       {/* HERO */}
@@ -78,17 +46,17 @@ export default function LookbookPage() {
       </div>
 
       {/* LOOKBOOK GRID */}
-      <section className="bg-[var(--offwhite)] py-12 px-6 md:px-10">
+      <section className="bg-[var(--offwhite)] py-12 px-6 md:px-10 min-h-[50vh]">
         <div className="max-w-[1280px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-auto">
-          {LOOKS.map((look) => (
+          {displayLooks.map((look: any, index: number) => (
             <div
               key={look.id}
-              className={`group relative overflow-hidden bg-[var(--beige)] ${look.span}`}
+              className={`group relative overflow-hidden bg-[var(--beige)] ${look.span || ''}`}
             >
-              <div className={`${look.aspect} w-full`}>
+              <div className={`${look.aspect || 'aspect-[3/4]'} w-full`}>
                 <Image
-                  src={look.img}
-                  alt={look.title}
+                  src={look.image_url}
+                  alt={look.title || `Look ${index + 1}`}
                   fill
                   className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
@@ -105,10 +73,15 @@ export default function LookbookPage() {
 
               {/* Always visible number */}
               <div className="absolute top-4 left-4 text-[0.48rem] tracking-widest uppercase text-white/60 bg-black/20 px-2 py-1">
-                {String(look.id).padStart(2, '0')}
+                {String(index + 1).padStart(2, '0')}
               </div>
             </div>
           ))}
+          {!displayLooks.length && (
+            <div className="col-span-full text-center py-20 text-[var(--mid)] text-sm tracking-widest uppercase">
+              No entries found.
+            </div>
+          )}
         </div>
       </section>
 

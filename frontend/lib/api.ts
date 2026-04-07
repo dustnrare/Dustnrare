@@ -61,6 +61,13 @@ export const productsApi = {
     return data
   },
 
+  async getLookbook() {
+    const res = await fetch('/api/lookbook', { cache: 'no-store' })
+    if (!res.ok) throw new Error('Failed to fetch lookbook')
+    const data = await res.json()
+    return data.lookbook || []
+  },
+
   async search(q: string) {
     const { data, error } = await supabase
       .from('products')
@@ -187,4 +194,32 @@ export const adminApi = {
     if (!res.ok) throw new Error('Upload failed')
     return res.json()
   },
+
+  async getLookbook(password: string) {
+    const res = await fetch('/api/admin/lookbook', {
+      headers: { 'x-admin-password': password }
+    })
+    if (!res.ok) throw new Error('Failed to fetch lookbook')
+    const data = await res.json()
+    return data.lookbook || []
+  },
+
+  async createLookbookItem(password: string, data: any) {
+    const res = await fetch('/api/admin/lookbook', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) throw new Error('Failed to create lookbook item')
+    return res.json()
+  },
+
+  async deleteLookbookItem(password: string, id: string) {
+    const res = await fetch(`/api/admin/lookbook?id=${id}`, {
+      method: 'DELETE',
+      headers: { 'x-admin-password': password },
+    })
+    if (!res.ok) throw new Error('Failed to delete lookbook item')
+    return res.json()
+  }
 }
