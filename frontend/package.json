@@ -22,7 +22,7 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
-    "@netlify/plugin-nextjs": "^5.3.3",
+    "@netlify/plugin-nextjs": "^5.15.9",
     "@types/dotenv": "^6.1.1",
     "@types/node": "^20",
     "@types/react": "^18",
