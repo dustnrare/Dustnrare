@@ -44,11 +44,10 @@ export default function Navbar() {
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
 
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between transition-all duration-700 ${
-          scrolled
+        className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between transition-all duration-700 ${scrolled
             ? "px-6 md:px-12 py-4 bg-[var(--offwhite)]/90 backdrop-blur-md border-b border-[var(--border)]"
             : "px-6 md:px-12 py-7 bg-transparent"
-        }`}
+          }`}
       >
         {/* Logo */}
         <Link href="/" className="relative group">
@@ -97,11 +96,10 @@ export default function Navbar() {
 
           <button
             onClick={openCart}
-            className={`relative text-[0.5rem] tracking-[0.25em] uppercase px-4 py-2.5 font-semibold transition-all duration-300 whitespace-nowrap ${
-              isSolid
+            className={`relative text-[0.5rem] tracking-[0.25em] uppercase px-4 py-2.5 font-semibold transition-all duration-300 whitespace-nowrap ${isSolid
                 ? "bg-[var(--text)] text-[var(--offwhite)] hover:bg-[var(--gold)]"
                 : "bg-white/15 backdrop-blur-sm text-white border border-white/30 hover:bg-white/25"
-            }`}
+              }`}
           >
             Bag ({count()})
           </button>
@@ -159,6 +157,7 @@ export default function Navbar() {
               transition={{ delay: 0.5 }}
               className="flex items-center gap-6 mt-8"
             >
+
               <button
                 onClick={() => {
                   setSearchOpen(true);
