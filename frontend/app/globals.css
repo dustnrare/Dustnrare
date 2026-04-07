@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── ROOT COLORS ─── */
+:root {
+  --beige:    #EAE3DC;
+  --sage:     #C7D3C0;
+  --pink:     #E8D4D8;
+  --offwhite: #F8F7F5;
+  --gold:     #b8965a;
+  --text:     #2a2622;
+  --mid:      #6b635c;
+  --light:    #9e958e;
+  --border:   rgba(42,38,34,0.12);
+}
+
+/* DARK MODE */
+/* .dark {
+  --offwhite: #111111;
+  --beige:    #1a1816;
+  --text:     #f0ece6;
+  --mid:      #9e958e;
+  --light:    #6b635c;
+  --border:   rgba(240,236,230,0.08);
+} */
+
+/* ─── BASE ─── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--offwhite);
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 400;
+  overflow-x: hidden;
+}
+
+/* ─── SCROLLBAR (CLEAN) ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold);
+}
+
+/* ─── TYPOGRAPHY ─── */
+.font-serif {
+  font-family: 'Playfair Display', serif;
+}
+
+/* ─── MINIMAL REVEAL (KEEP ONLY THIS) ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── BUTTONS (PREMIUM STYLE) ─── */
+@layer components {
+
+  .btn-primary {
+    @apply bg-[var(--text)] text-[var(--offwhite)] px-8 py-3 text-[0.75rem] tracking-[0.25em] uppercase font-medium transition-all duration-300 hover:bg-[var(--gold)];
+  }
+
+  .btn-outline {
+    @apply border border-[var(--text)] text-[var(--text)] px-8 py-3 text-[0.75rem] tracking-[0.25em] uppercase font-medium transition-all duration-300 hover:bg-[var(--text)] hover:text-[var(--offwhite)];
+  }
+
+  .btn-men,
+  .btn-women {
+    @apply px-10 py-3 text-[0.75rem] tracking-[0.25em] uppercase font-medium transition-all duration-300;
+  }
+
+  .btn-men {
+    @apply bg-[var(--sage)] text-[var(--text)] hover:opacity-80;
+  }
+
+  .btn-women {
+    @apply bg-[var(--pink)] text-[var(--text)] hover:opacity-80;
+  }
+
+  .btn-link {
+    @apply text-[0.75rem] tracking-[0.2em] uppercase border-b border-transparent hover:border-[var(--text)] transition-all;
+  }
+
+  /* SECTION LABEL */
+  .section-label {
+    @apply text-[var(--gold)] text-[0.7rem] tracking-[0.4em] uppercase mb-3;
+  }
+
+  /* SECTION TITLE */
+  .section-title {
+    @apply font-serif text-[clamp(2.5rem,5vw,4rem)] leading-[1.1];
+  }
+
+  /* INPUT */
+  .input-base {
+    @apply w-full border-0 border-b border-[var(--border)] py-3 text-sm bg-transparent outline-none focus:border-[var(--gold)];
+  }
+}
+
+/* ─── SAFE CUSTOM CURSOR (OPTIONAL) ─── */
+@media (pointer: fine) {
+  .cursor-dot,
+  .cursor-ring {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .cursor-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--text);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .cursor-ring {
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@media (pointer: coarse) {
+  .cursor-dot,
+  .cursor-ring {
+    display: none;
+  }
+}
