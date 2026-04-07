@@ -141,72 +141,67 @@ export default function CheckoutPage() {
               <F label="Full Name">
                 <input
                   value={address.name}
-                  onChange={(e) =>
-                    setAddress({ ...address, name: e.target.value })
-                  }
+                  onChange={(e) => { const v = e.target.value; setAddress((prev) => ({ ...prev, name: v })) }}
                   className="input-base"
                   placeholder="Aryan Kumar"
+                  autoComplete="name"
                 />
               </F>
               <F label="Phone Number" half>
                 <input
                   value={address.phone}
-                  onChange={(e) =>
-                    setAddress({ ...address, phone: e.target.value })
-                  }
+                  onChange={(e) => { const v = e.target.value; setAddress((prev) => ({ ...prev, phone: v })) }}
                   className="input-base"
                   placeholder="+91 98765 43210"
+                  autoComplete="tel"
+                  inputMode="tel"
                 />
               </F>
               <F label="Pincode" half>
                 <input
                   value={address.pincode}
-                  onChange={(e) =>
-                    setAddress({ ...address, pincode: e.target.value })
-                  }
+                  onChange={(e) => { const v = e.target.value; setAddress((prev) => ({ ...prev, pincode: v })) }}
                   className="input-base"
                   placeholder="110001"
                   maxLength={6}
+                  inputMode="numeric"
+                  autoComplete="postal-code"
                 />
               </F>
               <F label="Address Line 1">
                 <input
                   value={address.line1}
-                  onChange={(e) =>
-                    setAddress({ ...address, line1: e.target.value })
-                  }
+                  onChange={(e) => { const v = e.target.value; setAddress((prev) => ({ ...prev, line1: v })) }}
                   className="input-base"
                   placeholder="Flat / House / Street"
+                  autoComplete="address-line1"
                 />
               </F>
               <F label="Address Line 2 (optional)">
                 <input
                   value={address.line2}
-                  onChange={(e) =>
-                    setAddress({ ...address, line2: e.target.value })
-                  }
+                  onChange={(e) => { const v = e.target.value; setAddress((prev) => ({ ...prev, line2: v })) }}
                   className="input-base"
                   placeholder="Area / Landmark"
+                  autoComplete="address-line2"
                 />
               </F>
               <F label="City" half>
                 <input
                   value={address.city}
-                  onChange={(e) =>
-                    setAddress({ ...address, city: e.target.value })
-                  }
+                  onChange={(e) => { const v = e.target.value; setAddress((prev) => ({ ...prev, city: v })) }}
                   className="input-base"
                   placeholder="New Delhi"
+                  autoComplete="address-level2"
                 />
               </F>
               <F label="State" half>
                 <input
                   value={address.state}
-                  onChange={(e) =>
-                    setAddress({ ...address, state: e.target.value })
-                  }
+                  onChange={(e) => { const v = e.target.value; setAddress((prev) => ({ ...prev, state: v })) }}
                   className="input-base"
                   placeholder="Delhi"
+                  autoComplete="address-level1"
                 />
               </F>
             </div>

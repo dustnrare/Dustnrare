@@ -2,9 +2,8 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
-import Navbar from '@/components/Navbar'
 import Cursor from '@/components/Cursor'
-import CartDrawer from '@/components/CartDrawer'
+import ConditionalNavbar from '@/components/ConditionalNavbar'
 
 export const metadata: Metadata = {
   title: 'DUST·N·RARE — Quiet Luxury Streetwear',
@@ -46,8 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         )}
 
         <Cursor />
-        <Navbar />
-        <CartDrawer />
+        <ConditionalNavbar />
         <main>{children}</main>
         <Toaster
           position="bottom-right"

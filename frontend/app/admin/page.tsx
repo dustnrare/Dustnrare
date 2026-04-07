@@ -99,11 +99,24 @@ export default function AdminPage() {
 
   async function fetchOrders() {
     try {
-      const data = await adminApi.getOrders(password);
-      setOrders(data.orders || []);
-      setRevenue(data.revenue || 0);
-    } catch {
-      toast.error("Failed to load orders");
+      const res = await fetch('/api/admin/orders', {
+        headers: { 'x-admin-password': password },
+      })
+      if (res.status === 401) {
+        toast.error('Admin password rejected — check Netlify env vars')
+        return
+      }
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}))
+        toast.error(`Orders API error: ${errData.message || res.status}`)
+        return
+      }
+      const data = await res.json()
+      setOrders(data.orders || [])
+      setRevenue(data.revenue || 0)
+    } catch (err: any) {
+      console.error('Orders fetch error:', err)
+      toast.error('Failed to load orders: ' + (err.message || 'Network error'))
     }
   }
 
@@ -264,11 +277,10 @@ export default function AdminPage() {
             <button
               key={item.key}
               onClick={() => setSection(item.key)}
-              className={`w-full flex items-center gap-3 px-5 py-3 text-[0.58rem] tracking-[0.1em] uppercase transition-all ${
-                section === item.key
-                  ? "bg-[var(--gold)]/20 text-[var(--gold)] border-l-2 border-[var(--gold)]"
-                  : "text-white/50 hover:text-white/85 hover:bg-white/5"
-              }`}
+              className={`w-full flex items-center gap-3 px-5 py-3 text-[0.58rem] tracking-[0.1em] uppercase transition-all ${section === item.key
+                ? "bg-[var(--gold)]/20 text-[var(--gold)] border-l-2 border-[var(--gold)]"
+                : "text-white/50 hover:text-white/85 hover:bg-white/5"
+                }`}
             >
               <span className="text-sm w-4">{item.icon}</span>
               {item.label}
@@ -493,11 +505,10 @@ export default function AdminPage() {
                         {SIZES_LIST.map((s) => (
                           <button
                             key={s} type="button" onClick={() => toggleSize(s)}
-                            className={`w-10 h-10 border text-[0.55rem] font-medium transition-all ${
-                              form.sizes.includes(s)
-                                ? "border-[var(--text)] bg-[var(--text)] text-[var(--offwhite)]"
-                                : "border-[var(--border)] text-[var(--mid)] hover:border-[var(--text)]"
-                            }`}
+                            className={`w-10 h-10 border text-[0.55rem] font-medium transition-all ${form.sizes.includes(s)
+                              ? "border-[var(--text)] bg-[var(--text)] text-[var(--offwhite)]"
+                              : "border-[var(--border)] text-[var(--mid)] hover:border-[var(--text)]"
+                              }`}
                           >{s}</button>
                         ))}
                       </div>
@@ -646,9 +657,8 @@ function ProductRow({
             value={stockVal}
             onChange={(e) => setStockVal(e.target.value)}
             onBlur={() => onStockUpdate(Number(stockVal))}
-            className={`w-14 border text-[0.6rem] px-2 py-1 bg-transparent outline-none focus:border-[var(--gold)] ${
-              product.stock <= 4 ? "border-yellow-400 text-yellow-700" : "border-[var(--border)] text-[var(--mid)]"
-            }`}
+            className={`w-14 border text-[0.6rem] px-2 py-1 bg-transparent outline-none focus:border-[var(--gold)] ${product.stock <= 4 ? "border-yellow-400 text-yellow-700" : "border-[var(--border)] text-[var(--mid)]"
+              }`}
           />
         </div>
       </td>
@@ -658,11 +668,10 @@ function ProductRow({
       <td className="px-4 py-3">
         <button
           onClick={onToggleActive}
-          className={`text-[0.44rem] tracking-widest uppercase px-2.5 py-1 border transition-all ${
-            product.is_active
-              ? "border-green-300 text-green-600 hover:bg-red-50 hover:border-red-300 hover:text-red-500"
-              : "border-red-200 text-red-400 hover:bg-green-50 hover:border-green-300 hover:text-green-600"
-          }`}
+          className={`text-[0.44rem] tracking-widest uppercase px-2.5 py-1 border transition-all ${product.is_active
+            ? "border-green-300 text-green-600 hover:bg-red-50 hover:border-red-300 hover:text-red-500"
+            : "border-red-200 text-red-400 hover:bg-green-50 hover:border-green-300 hover:text-green-600"
+            }`}
         >
           {product.is_active ? "Visible" : "Hidden"}
         </button>

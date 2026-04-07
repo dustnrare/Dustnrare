@@ -10,8 +10,8 @@ router.post('/', protect, async (req, res) => {
   try {
     const { items, address, paymentMethod = 'whatsapp' } = req.body
 
-    if (!items?.length)  return res.status(400).json({ message: 'Cart is empty' })
-    if (!address)        return res.status(400).json({ message: 'Delivery address required' })
+    if (!items?.length) return res.status(400).json({ message: 'Cart is empty' })
+    if (!address) return res.status(400).json({ message: 'Delivery address required' })
 
     let subtotal = 0
     const orderItems = []
@@ -24,28 +24,28 @@ router.post('/', protect, async (req, res) => {
       subtotal += product.price * item.qty
       orderItems.push({
         product: product._id,
-        name:    product.name,
-        image:   product.images[0],
-        size:    item.size,
-        qty:     item.qty,
-        price:   product.price,
+        name: product.name,
+        image: product.images[0],
+        size: item.size,
+        qty: item.qty,
+        price: product.price,
       })
     }
 
     const shipping = subtotal >= 999 ? 0 : 60
-    const total    = subtotal + shipping
+    const total = subtotal + shipping
 
     const dbUser = await User.findOne({ uid: req.firebaseUser.uid })
 
     const order = await Order.create({
       customer: dbUser?._id,
-      items:    orderItems,
+      items: orderItems,
       subtotal,
       shipping,
       total,
       address,
       payment: { method: paymentMethod, status: 'pending' },
-      status:  'placed',
+      status: 'placed',
     })
 
     // ── Build WhatsApp message ──────────────────────────────
@@ -54,7 +54,7 @@ router.post('/', protect, async (req, res) => {
       .join('\n')
 
     const waText = encodeURIComponent(
-`🛍️ New Order — Dust N Rare
+      `🛍️ New Order — Dust N Rare
 Order ID: ${order.orderId}
 
 Items:
@@ -72,13 +72,13 @@ Phone: ${address.phone}
 
 Payment: Will pay via UPI/bank transfer`)
 
-    const waNumber = process.env.ORDER_WHATSAPP || '917033182211'
-    const waLink   = `https://wa.me/${waNumber}?text=${waText}`
+    const waNumber = process.env.ORDER_WHATSAPP || '918789277058'
+    const waLink = `https://wa.me/${waNumber}?text=${waText}`
 
     // ── Build Email mailto link ─────────────────────────────
     const emailSubject = encodeURIComponent(`New Order ${order.orderId} — Dust N Rare`)
     const emailBody = encodeURIComponent(
-`New Order Received — Dust N Rare
+      `New Order Received — Dust N Rare
 
 Order ID: ${order.orderId}
 
@@ -98,7 +98,7 @@ Phone: ${address.phone}
 Payment: Pending (UPI/bank transfer)`)
 
     const orderEmail = process.env.ORDER_EMAIL || 'dustnrare@gmail.com'
-    const emailLink  = `mailto:${orderEmail}?subject=${emailSubject}&body=${emailBody}`
+    const emailLink = `mailto:${orderEmail}?subject=${emailSubject}&body=${emailBody}`
 
     res.status(201).json({ order, waLink, emailLink })
   } catch (err) {
@@ -131,9 +131,9 @@ router.get('/', protect, sellerOnly, async (req, res) => {
       .skip((page - 1) * limit)
       .limit(Number(limit))
       .populate('customer', 'name email phone')
-    const total   = await Order.countDocuments(filter)
+    const total = await Order.countDocuments(filter)
     const revenue = await Order.aggregate([
-      { $match: { status: { $in: ['confirmed','shipped','delivered'] } } },
+      { $match: { status: { $in: ['confirmed', 'shipped', 'delivered'] } } },
       { $group: { _id: null, total: { $sum: '$total' } } }
     ])
     res.json({ orders, total, revenue: revenue[0]?.total || 0 })
@@ -147,7 +147,7 @@ router.get('/:id', protect, async (req, res) => {
   try {
     const dbUser = await User.findOne({ uid: req.firebaseUser.uid })
     const order = await Order.findById(req.params.id).populate('items.product')
-    
+
     if (!order) return res.status(404).json({ message: 'Order not found' })
 
     // IDOR protection: ensure order belongs to the requester or requester is seller/admin
