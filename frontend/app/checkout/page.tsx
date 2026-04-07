@@ -10,10 +10,6 @@ import toast from "react-hot-toast";
 
 type SendMethod = "whatsapp" | "email" | null;
 
-// ── Field wrapper MUST be defined outside CheckoutPage at module level.
-// If it's inside (as a const arrow fn), React treats it as a brand-new
-// component type on every render → inputs unmount/remount on each
-// keystroke → mobile keyboard closes after every character typed.
 function F({
   label,
   half,
@@ -111,8 +107,8 @@ export default function CheckoutPage() {
       clearCart();
       toast.success(
         "Order placed! Opening " +
-          (chosen === "whatsapp" ? "WhatsApp" : "Email") +
-          "...",
+        (chosen === "whatsapp" ? "WhatsApp" : "Email") +
+        "...",
       );
 
       if (chosen === "whatsapp") window.open(data.waLink, "_blank");
