@@ -95,6 +95,8 @@ export const ordersApi = {
     subtotal: number
     shipping: number
     total: number
+    couponCode?: string
+    discount?: number
   }) {
     const res = await fetch('/api/order', {
       method: 'POST',
@@ -221,5 +223,96 @@ export const adminApi = {
     })
     if (!res.ok) throw new Error('Failed to delete lookbook item')
     return res.json()
-  }
+  },
+
+  // Coupon CRUD
+  async getCoupons(password: string) {
+    const res = await fetch('/api/admin/coupons', {
+      headers: { 'x-admin-password': password },
+    })
+    if (!res.ok) throw new Error('Failed to fetch coupons')
+    const data = await res.json()
+    return data.coupons || []
+  },
+
+  async createCoupon(password: string, data: {
+    code: string;
+    discount_type: 'percentage' | 'flat';
+    discount_value: number;
+    min_order?: number;
+    max_uses?: number;
+    expires_at?: string;
+  }) {
+    const res = await fetch('/api/admin/coupons', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) {
+      const errData = await res.json()
+      throw new Error(errData.message || 'Failed to create coupon')
+    }
+    return res.json()
+  },
+
+  async updateCoupon(password: string, id: string, data: Record<string, unknown>) {
+    const res = await fetch('/api/admin/coupons', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+      body: JSON.stringify({ id, ...data }),
+    })
+    if (!res.ok) throw new Error('Failed to update coupon')
+    return res.json()
+  },
+
+  async deleteCoupon(password: string, id: string) {
+    const res = await fetch(`/api/admin/coupons?id=${id}`, {
+      method: 'DELETE',
+      headers: { 'x-admin-password': password },
+    })
+    if (!res.ok) throw new Error('Failed to delete coupon')
+    return res.json()
+  },
+
+  // Testimonials CRUD
+  async getTestimonials(password: string) {
+    const res = await fetch('/api/admin/testimonials', {
+      headers: { 'x-admin-password': password },
+    })
+    if (!res.ok) throw new Error('Failed to fetch testimonials')
+    const data = await res.json()
+    return data.testimonials || []
+  },
+
+  async createTestimonial(password: string, data: { stars: number, text: string, author: string, location: string, product: string }) {
+    const res = await fetch('/api/admin/testimonials', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) {
+      const errData = await res.json()
+      throw new Error(errData.message || 'Failed to create testimonial')
+    }
+    return res.json()
+  },
+
+  async updateTestimonial(password: string, id: string, data: Record<string, unknown>) {
+    const res = await fetch('/api/admin/testimonials', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+      body: JSON.stringify({ id, ...data }),
+    })
+    if (!res.ok) throw new Error('Failed to update testimonial')
+    return res.json()
+  },
+
+  async deleteTestimonial(password: string, id: string) {
+    const res = await fetch(`/api/admin/testimonials?id=${id}`, {
+      method: 'DELETE',
+      headers: { 'x-admin-password': password },
+    })
+    if (!res.ok) throw new Error('Failed to delete testimonial')
+    return res.json()
+  },
 }

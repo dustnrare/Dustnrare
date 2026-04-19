@@ -56,7 +56,7 @@ export default function SearchModal({ isOpen, onClose }: Props) {
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 z-[300] backdrop-blur-sm"
+            className="fixed inset-0 bg-black/70 z-[300] backdrop-blur-sm"
             onClick={onClose}
           />
 
@@ -66,7 +66,7 @@ export default function SearchModal({ isOpen, onClose }: Props) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="fixed top-0 left-0 right-0 z-[301] bg-[var(--offwhite)] border-b border-[var(--border)] shadow-lg"
+            className="fixed top-0 left-0 right-0 z-[301] bg-[var(--bg-elevated)] border-b border-[var(--border)] shadow-2xl"
           >
             {/* Search input */}
             <div className="flex items-center gap-4 px-8 py-5 border-b border-[var(--border)]">
@@ -76,14 +76,14 @@ export default function SearchModal({ isOpen, onClose }: Props) {
                 value={query}
                 onChange={e => handleInput(e.target.value)}
                 placeholder="Search pieces, fabrics, styles..."
-                className="flex-1 bg-transparent outline-none font-serif text-xl text-[var(--text)] placeholder:text-[var(--light)]"
+                className="flex-1 bg-transparent outline-none font-serif text-xl text-[var(--text)] placeholder:text-[var(--text-muted)]"
               />
               {loading && (
                 <div className="w-5 h-5 border border-[var(--gold)] border-t-transparent rounded-full animate-spin" />
               )}
               <button
                 onClick={onClose}
-                className="text-[0.55rem] tracking-widest uppercase text-[var(--mid)] hover:text-[var(--text)] transition-colors"
+                className="text-[0.55rem] tracking-widest uppercase text-[var(--text-muted)] hover:text-[var(--gold)] transition-colors"
               >
                 ✕ Close
               </button>
@@ -94,13 +94,13 @@ export default function SearchModal({ isOpen, onClose }: Props) {
               {query && !loading && results.length === 0 && (
                 <div className="px-8 py-10 text-center">
                   <p className="font-serif text-xl text-[var(--text)] mb-2">Nothing found for &quot;{query}&quot;</p>
-                  <p className="text-[0.6rem] tracking-widest uppercase text-[var(--mid)]">Try a different search term</p>
+                  <p className="text-[0.6rem] tracking-widest uppercase text-[var(--text-muted)]">Try a different search term</p>
                 </div>
               )}
 
               {results.length > 0 && (
                 <div className="px-8 py-4">
-                  <p className="text-[0.5rem] tracking-widest uppercase text-[var(--light)] mb-4">
+                  <p className="text-[0.5rem] tracking-widest uppercase text-[var(--text-muted)] mb-4">
                     {results.length} result{results.length !== 1 ? 's' : ''} for &quot;{query}&quot;
                   </p>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -111,7 +111,7 @@ export default function SearchModal({ isOpen, onClose }: Props) {
                         onClick={onClose}
                         className="group"
                       >
-                        <div className="aspect-[3/4] overflow-hidden bg-[var(--beige)] mb-2">
+                        <div className="aspect-[3/4] overflow-hidden bg-[var(--surface)] mb-2">
                           <Image
                             src={product.images[0]}
                             alt={product.name}
@@ -120,7 +120,7 @@ export default function SearchModal({ isOpen, onClose }: Props) {
                           />
                         </div>
                         <p className="font-serif text-[0.9rem] text-[var(--text)] leading-tight">{product.name}</p>
-                        <p className="text-[0.55rem] text-[var(--mid)] mt-0.5">₹{product.price.toLocaleString()}</p>
+                        <p className="text-[0.55rem] text-[var(--gold)] mt-0.5">₹{product.price.toLocaleString()}</p>
                       </Link>
                     ))}
                   </div>
@@ -130,14 +130,14 @@ export default function SearchModal({ isOpen, onClose }: Props) {
               {/* Quick links when no query */}
               {!query && (
                 <div className="px-8 py-6">
-                  <p className="text-[0.5rem] tracking-widest uppercase text-[var(--light)] mb-4">Browse</p>
+                  <p className="text-[0.5rem] tracking-widest uppercase text-[var(--text-muted)] mb-4">Browse</p>
                   <div className="flex flex-wrap gap-3">
                     {['Men', 'Women', 'Surplus', 'New Drop', 'Oversized', 'Linen'].map(tag => (
                       <Link
                         key={tag}
                         href={`/shop?q=${tag.toLowerCase()}`}
                         onClick={onClose}
-                        className="border border-[var(--border)] px-4 py-2 text-[0.55rem] tracking-widest uppercase text-[var(--mid)] hover:border-[var(--gold)] hover:text-[var(--gold)] transition-all"
+                        className="border border-[var(--border)] px-4 py-2 text-[0.55rem] tracking-widest uppercase text-[var(--text-muted)] hover:border-[var(--gold)] hover:text-[var(--gold)] transition-all"
                       >
                         {tag}
                       </Link>

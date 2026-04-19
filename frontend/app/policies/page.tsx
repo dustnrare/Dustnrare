@@ -120,7 +120,7 @@ export default function PoliciesPage() {
             Our <em className="italic text-[var(--gold)]">Policies</em>
           </h1>
           <p className="text-[0.65rem] leading-loose text-[var(--mid)] mt-4 max-w-[520px]">
-            We believe in total transparency. Here's everything you need to know about how we ship, handle returns, and protect your data.
+            We believe in total transparency. Here&apos;s everything you need to know about how we ship, handle returns, and protect your data.
           </p>
         </div>
       </section>

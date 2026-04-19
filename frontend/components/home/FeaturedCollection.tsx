@@ -7,29 +7,31 @@ import ProductCard from '@/components/ProductCard'
 import { productsApi } from '@/lib/api'
 import { Product } from '@/store'
 
-type Gender = 'men' | 'women' | 'surplus'
+type Gender = 'all' | 'men' | 'women' | 'surplus'
 
 const TABS: { id: Gender; label: string }[] = [
+  { id: 'all',     label: 'All'     },
   { id: 'men',     label: 'Men'     },
   { id: 'women',   label: 'Women'   },
   { id: 'surplus', label: 'Surplus' },
 ]
 
 export default function FeaturedCollection() {
-  const [gender,   setGender]   = useState<Gender>('men')
+  const [gender,   setGender]   = useState<Gender>('all')
   const [products, setProducts] = useState<Product[]>([])
   const [loading,  setLoading]  = useState(true)
 
   useEffect(() => {
     setLoading(true)
-    productsApi.getAll({ category: gender, limit: 4 })
+    const categoryParam = gender === 'all' ? undefined : gender
+    productsApi.getAll({ category: categoryParam, limit: 4 })
       .then(data => setProducts(data))
       .catch(() => setProducts([]))
       .finally(() => setLoading(false))
   }, [gender])
 
   return (
-    <section className="py-24 bg-[var(--offwhite)]">
+    <section className="py-24 bg-[var(--bg)]">
       <div className="max-w-[1360px] mx-auto px-6 md:px-12">
 
         {/* Header row */}
@@ -38,13 +40,13 @@ export default function FeaturedCollection() {
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.8 }}
           >
-            <div className="section-label">SS '25 Drop</div>
+            <div className="section-label">SS &apos;26 Drop</div>
             <h2 className="section-title">
               Featured <em className="italic text-[var(--gold)]">Collection</em>
             </h2>
           </motion.div>
 
-          {/* Tabs — minimal underline style */}
+          {/* Tabs */}
           <motion.div
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
             viewport={{ once: true }} transition={{ delay: 0.2 }}
@@ -56,8 +58,8 @@ export default function FeaturedCollection() {
                 onClick={() => setGender(tab.id)}
                 className={`relative px-8 py-3 text-[0.52rem] tracking-[0.3em] uppercase font-semibold transition-all duration-400 ${
                   gender === tab.id
-                    ? 'bg-[var(--text)] text-[var(--offwhite)]'
-                    : 'bg-transparent text-[var(--light)] hover:text-[var(--mid)] hover:bg-[var(--beige)]'
+                    ? 'bg-[var(--gold)] text-[var(--bg)]'
+                    : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--gold)] hover:bg-[var(--surface)]'
                 }`}
               >
                 {tab.label}
@@ -71,7 +73,7 @@ export default function FeaturedCollection() {
           {loading ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="aspect-[3/4] bg-[var(--beige)] animate-pulse" />
+                <div key={i} className="aspect-[3/4] bg-[var(--surface)] animate-pulse" />
               ))}
             </div>
           ) : (
@@ -95,12 +97,16 @@ export default function FeaturedCollection() {
           viewport={{ once: true }} transition={{ delay: 0.3 }}
           className="flex justify-between items-center mt-12 pt-8 border-t border-[var(--border)]"
         >
-          <span className="text-[0.5rem] tracking-[0.3em] uppercase text-[var(--light)]">
-            {gender === 'surplus' ? 'Limited stock — once gone, stays gone' : `Showing ${gender}'s edit`}
+          <span className="text-[0.5rem] tracking-[0.3em] uppercase text-[var(--text-muted)]">
+            {gender === 'all' 
+              ? 'Curated select from all our drops' 
+              : gender === 'surplus' 
+                ? 'Limited stock — once gone, stays gone' 
+                : `Showing ${gender}'s edit`}
           </span>
           <Link
-            href={`/shop?gender=${gender}`}
-            className="group flex items-center gap-2 text-[0.52rem] tracking-[0.25em] uppercase font-semibold text-[var(--text)] hover:text-[var(--gold)] transition-colors duration-300"
+            href={gender === 'all' ? '/shop' : `/shop?gender=${gender}`}
+            className="group flex items-center gap-2 text-[0.52rem] tracking-[0.25em] uppercase font-semibold text-[var(--gold)] hover:text-[var(--gold-light)] transition-colors duration-300"
           >
             View All
             <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>

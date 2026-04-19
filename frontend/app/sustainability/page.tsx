@@ -16,7 +16,7 @@ export default function SustainabilityPage() {
             <em className="italic text-[var(--gold)]">Crafted</em> Conciously
           </h1>
           <p className="text-[0.7rem] leading-loose text-[var(--mid)] mt-8 max-w-[500px] mx-auto">
-            True luxury doesn't cost the earth. We believe in creating pieces that last, using materials that matter. Our approach to streetwear focuses on quality over quantity, upcycling over discarding.
+            True luxury doesn&apos;t cost the earth. We believe in creating pieces that last, using materials that matter. Our approach to streetwear focuses on quality over quantity, upcycling over discarding.
           </p>
         </div>
       </section>
@@ -43,7 +43,7 @@ export default function SustainabilityPage() {
             <div className="text-3xl text-[var(--gold)] mb-6">◈</div>
             <h2 className="font-serif text-3xl mb-4">Slow Release</h2>
             <p className="text-[0.7rem] leading-loose text-[var(--mid)]">
-              We don't follow seasons or trend cycles. Our drops happen when the product is ready. This allows us to perfect the fit, test the materials, and ensure every piece earns its place in your wardrobe.
+              We don&apos;t follow seasons or trend cycles. Our drops happen when the product is ready. This allows us to perfect the fit, test the materials, and ensure every piece earns its place in your wardrobe.
             </p>
           </div>
         </div>

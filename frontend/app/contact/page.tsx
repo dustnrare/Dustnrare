@@ -13,7 +13,7 @@ export default function ContactPage() {
         <div className="max-w-[700px] mx-auto text-center">
           <div className="section-label mb-4">Get In Touch</div>
           <h1 className="font-serif text-4xl md:text-6xl font-normal text-[var(--text)] mb-6">
-            We're Here to <em className="italic text-[var(--gold)]">Help</em>
+            We&apos;re Here to <em className="italic text-[var(--gold)]">Help</em>
           </h1>
           <p className="text-[0.75rem] leading-loose text-[var(--mid)] mb-12 max-w-[450px] mx-auto">
             Whether you have a question about sizing, your order status, or just want to talk streetwear — drop us a line.

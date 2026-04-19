@@ -11,25 +11,25 @@ const INITIAL_CATEGORIES = [
     id: "men",
     label: "Men",
     count: "...",
-    img: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80",
+    img: "/mencategory.jpeg",
   },
   {
     id: "women",
     label: "Women",
     count: "...",
-    img: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=80",
+    img: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&h=800&fit=crop&q=80",
   },
   {
     id: "surplus",
     label: "Surplus",
     count: "Limited",
-    img: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=600&q=80",
+    img: "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=800&q=80",
   },
   {
     id: "all",
     label: "New Drop",
-    count: "SS '25",
-    img: "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=600&q=80",
+    count: "SS '26",
+    img: "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?w=600&h=800&fit=crop&q=80",
   },
 ];
 
@@ -63,11 +63,12 @@ export default function CategoryGrid() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
+          viewport={{ once: true }}
           className="mb-16"
         >
           <div className="section-label">Categories</div>
 
-          <h2 className="font-serif text-[clamp(2.5rem,5vw,4rem)] leading-tight">
+          <h2 className="font-serif text-[clamp(2.5rem,5vw,4rem)] leading-tight text-[var(--text)]">
             Shop <span className="italic text-[var(--gold)]">Essentials</span>
           </h2>
         </motion.div>
@@ -80,6 +81,7 @@ export default function CategoryGrid() {
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08, duration: 0.7 }}
+              viewport={{ once: true }}
             >
               <Link
                 href={`/shop${cat.id !== "all" ? `?gender=${cat.id}` : ""}`}
@@ -94,8 +96,9 @@ export default function CategoryGrid() {
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
 
-                  {/* Subtle overlay */}
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition" />
+                  {/* Dark overlay with gold border on hover */}
+                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-all duration-500" />
+                  <div className="absolute inset-0 border border-transparent group-hover:border-[var(--gold)]/30 transition-all duration-500 m-3" />
                 </div>
 
                 {/* Text */}
@@ -105,13 +108,13 @@ export default function CategoryGrid() {
                       {cat.label}
                     </h3>
 
-                    <p className="text-[0.7rem] tracking-[0.25em] uppercase text-[var(--mid)] mt-1 transition-opacity">
+                    <p className="text-[0.7rem] tracking-[0.25em] uppercase text-[var(--text-muted)] mt-1 transition-opacity">
                       {cat.count}
                     </p>
                   </div>
 
                   {/* Arrow */}
-                  <div className="text-[var(--gold)] text-sm opacity-0 group-hover:opacity-100 transition">
+                  <div className="text-[var(--gold)] text-sm opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1">
                     →
                   </div>
                 </div>

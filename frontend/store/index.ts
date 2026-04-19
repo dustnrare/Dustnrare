@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 // ─── TYPES ──────────────────────────────────────────────────
 export interface Product {
@@ -76,7 +76,10 @@ export const useCartStore = create<CartStore>()(
       total: () => get().items.reduce((sum, i) => sum + i.product.price * i.qty, 0),
       count: () => get().items.reduce((sum, i) => sum + i.qty, 0),
     }),
-    { name: 'dustnrare-cart' }
+    { 
+      name: 'dustnrare-cart',
+      storage: createJSONStorage(() => localStorage)
+    }
   )
 )
 

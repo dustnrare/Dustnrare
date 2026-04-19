@@ -34,20 +34,20 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   }
 
   if (!product) return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)]">
       <div className="w-10 h-10 border border-[var(--gold)] border-t-transparent rounded-full animate-spin" />
     </div>
   )
 
   return (
     <>
-      <div className="min-h-screen pt-20">
+      <div className="min-h-screen pt-20 bg-[var(--bg)]">
         <div className="max-w-[1280px] mx-auto grid md:grid-cols-2 gap-0">
 
           {/* GALLERY */}
           <div className="md:sticky md:top-20 md:h-[calc(100vh-80px)] overflow-y-auto p-6 flex flex-col gap-3">
             <motion.div
-              className="aspect-[3/4] overflow-hidden relative bg-[var(--beige)]"
+              className="aspect-[3/4] overflow-hidden relative bg-[var(--surface)]"
               initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             >
               <Image
@@ -81,24 +81,24 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             <h1 className="font-serif text-[clamp(2rem,4vw,3rem)] font-normal text-[var(--text)] leading-tight mb-4">{product.name}</h1>
 
             <div className="flex items-center gap-3 mb-2">
-              <span className="text-xl font-medium text-[var(--text)]">₹{product.price.toLocaleString()}</span>
+              <span className="text-xl font-medium text-[var(--gold)]">₹{product.price.toLocaleString()}</span>
               {product.original_price && (
                 <>
-                  <span className="text-[var(--light)] line-through text-sm">₹{product.original_price.toLocaleString()}</span>
-                  <span className="bg-[var(--sage)] text-[var(--text)] text-[0.45rem] tracking-widest uppercase px-2 py-0.5">Sale</span>
+                  <span className="text-[var(--text-muted)] line-through text-sm">₹{product.original_price.toLocaleString()}</span>
+                  <span className="bg-[var(--gold)] text-[var(--bg)] text-[0.45rem] tracking-widest uppercase px-2 py-0.5">Sale</span>
                 </>
               )}
             </div>
 
             {product.stock === 0 ? (
-              <div className="mb-4 inline-block bg-gray-100 text-gray-500 px-3 py-1.5 text-[0.52rem] font-bold tracking-widest uppercase">
+              <div className="mb-4 inline-block bg-[var(--surface)] text-[var(--text-muted)] px-3 py-1.5 text-[0.52rem] font-bold tracking-widest uppercase">
                 Out of Stock
               </div>
             ) : product.stock <= 5 ? (
-              <div className="flex items-center gap-2 mb-4 bg-red-50 border border-red-100/50 text-red-600 px-3 py-2 w-fit">
+              <div className="flex items-center gap-2 mb-4 bg-[var(--gold)]/10 border border-[var(--gold)]/20 text-[var(--gold)] px-3 py-2 w-fit">
                  <span className="relative flex h-2 w-2">
-                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                   <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--gold)] opacity-75"></span>
+                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--gold)]"></span>
                  </span>
                  <p className="text-[0.52rem] font-bold tracking-widest uppercase mt-[1px]">Limited Stock — Fast Selling</p>
                </div>
@@ -107,7 +107,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             <div className="h-px bg-[var(--border)] my-5" />
 
             {/* SIZE SELECTOR */}
-            <p className="text-[0.52rem] tracking-[0.25em] uppercase text-[var(--mid)] mb-3">Select Size</p>
+            <p className="text-[0.52rem] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-3">Select Size</p>
             <div className="flex gap-2 flex-wrap mb-2">
               {product.sizes.map(s => (
                 <button
@@ -115,8 +115,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   onClick={() => setSize(s)}
                   className={`w-11 h-11 border text-[0.6rem] font-medium transition-all ${
                     size === s
-                      ? 'border-[var(--text)] bg-[var(--text)] text-[var(--offwhite)]'
-                      : 'border-[var(--border)] text-[var(--mid)] hover:border-[var(--text)] hover:text-[var(--text)]'
+                      ? 'border-[var(--gold)] bg-[var(--gold)] text-[var(--bg)]'
+                      : 'border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--gold)] hover:text-[var(--gold)]'
                   }`}
                 >{s}</button>
               ))}
@@ -127,11 +127,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
             {/* QTY */}
             <div className="flex items-center gap-4 mb-6">
-              <span className="text-[0.52rem] tracking-[0.25em] uppercase text-[var(--mid)]">Qty</span>
+              <span className="text-[0.52rem] tracking-[0.25em] uppercase text-[var(--text-muted)]">Qty</span>
               <div className="flex items-center border border-[var(--border)]">
-                <button onClick={() => setQty(Math.max(1, qty-1))} className="w-9 h-9 flex items-center justify-center text-[var(--mid)] hover:bg-[var(--beige)] transition-colors">−</button>
-                <span className="w-10 text-center text-[0.75rem] font-medium">{qty}</span>
-                <button onClick={() => setQty(qty+1)} className="w-9 h-9 flex items-center justify-center text-[var(--mid)] hover:bg-[var(--beige)] transition-colors">+</button>
+                <button onClick={() => setQty(Math.max(1, qty-1))} className="w-9 h-9 flex items-center justify-center text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-[var(--gold)] transition-colors">−</button>
+                <span className="w-10 text-center text-[0.75rem] font-medium text-[var(--text)]">{qty}</span>
+                <button onClick={() => setQty(qty+1)} className="w-9 h-9 flex items-center justify-center text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-[var(--gold)] transition-colors">+</button>
               </div>
             </div>
 
@@ -140,10 +140,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               disabled={product.stock === 0}
               className={`w-full py-4 text-[0.62rem] tracking-[0.25em] uppercase font-medium transition-all mb-3 ${
                 product.stock === 0
-                  ? 'bg-[#e5e5e5] text-gray-500 cursor-not-allowed'
+                  ? 'bg-[var(--surface)] text-[var(--text-muted)] cursor-not-allowed'
                   : added
-                    ? 'bg-[var(--sage)] text-[var(--text)]'
-                    : 'bg-[var(--text)] text-[var(--offwhite)] hover:bg-[var(--gold)]'
+                    ? 'bg-green-700 text-white'
+                    : 'bg-[var(--gold)] text-[var(--bg)] hover:bg-[var(--gold-light)]'
               }`}
             >
               {product.stock === 0 ? 'Out of Stock' : added ? 'Added to Bag ✓' : 'Add to Bag'}
@@ -153,10 +153,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             <div className="space-y-3 mb-6 mt-4">
               {[
                 ['📦', 'Free shipping over ₹1999', 'font-medium text-[var(--gold)]'],
-                ['⚡', 'Dispatch within 24 hours', 'text-[var(--text)]'],
-                ['◎', '7-day hassle-free returns', 'text-[var(--text)]'],
-                ['🛡️', '100% secure encrypted checkout', 'text-[var(--light)]'],
-                ['◈', `Fabric: ${product.fabric || 'Premium blend'}`, 'text-[var(--mid)]'],
+                ['⚡', 'Dispatch within 24 hours', 'text-[var(--text-soft)]'],
+                ['◎', '7-day hassle-free returns', 'text-[var(--text-soft)]'],
+                ['🛡️', '100% secure encrypted checkout', 'text-[var(--text-muted)]'],
+                ['◈', `Fabric: ${product.fabric || 'Premium blend'}`, 'text-[var(--text-muted)]'],
               ].map(([icon, text, styleClass]) => (
                 <div key={text as string} className="flex gap-4 py-2.5 border-b border-[var(--border)] last:border-0">
                   <span className="text-sm w-5 text-center">{icon}</span>
@@ -166,9 +166,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             </div>
 
             {/* STORY */}
-            <div className="bg-[var(--beige)] p-5">
+            <div className="bg-[var(--surface)] border border-[var(--border)] p-5">
               <p className="font-serif text-[1.05rem] text-[var(--text)] mb-2">About This Piece</p>
-              <p className="text-[0.65rem] leading-loose text-[var(--mid)]">{product.description}</p>
+              <p className="text-[0.65rem] leading-loose text-[var(--text-soft)]">{product.description}</p>
             </div>
           </motion.div>
         </div>

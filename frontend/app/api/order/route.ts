@@ -7,7 +7,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { items, address, paymentMethod, subtotal, shipping, total } = body
+    const { items, address, paymentMethod, subtotal, shipping, total, couponCode, discount } = body
 
     if (!items?.length) {
       return NextResponse.json({ message: 'Cart is empty' }, { status: 400 })
@@ -24,20 +24,64 @@ export async function POST(req: NextRequest) {
       .select('*', { count: 'exact', head: true })
     const orderId = `DNR-${String((count || 0) + 1).padStart(4, '0')}`
 
+    // Recalculate everything on server — DO NOT trust client prices
+    let serverSubtotal = 0
+    const verifiedItems = []
+
+    for (const item of items) {
+      const { data: p } = await supabase.from('products').select('price, name').eq('id', item.productId).single()
+      if (!p) return NextResponse.json({ message: `Product ${item.productId} not found` }, { status: 404 })
+      
+      const itemPrice = p.price
+      serverSubtotal += itemPrice * item.qty
+      verifiedItems.push({ ...item, price: itemPrice, name: p.name })
+    }
+
+    let serverDiscount = 0
+    if (couponCode) {
+      const { data: c } = await supabase
+        .from('coupons')
+        .select('*')
+        .eq('code', couponCode.toUpperCase())
+        .eq('is_active', true)
+        .single()
+      
+      if (c) {
+        // Validate coupon logic again on server
+        const now = new Date()
+        const isExpired = c.expires_at && new Date(c.expires_at) < now
+        const isOverlimit = c.max_uses > 0 && c.used_count >= c.max_uses
+        const isValidMinOrder = serverSubtotal >= (c.min_order || 0)
+
+        if (!isExpired && !isOverlimit && isValidMinOrder) {
+          if (c.discount_type === 'percentage') {
+            serverDiscount = Math.round((serverSubtotal * c.discount_value) / 100)
+          } else {
+            serverDiscount = c.discount_value
+          }
+          serverDiscount = Math.min(serverDiscount, serverSubtotal)
+        }
+      }
+    }
+
+    const serverTotal = serverSubtotal + shipping - serverDiscount
+
     // Save order to Supabase
     const { data: order, error } = await supabase
       .from('orders')
       .insert({
         order_id: orderId,
-        items,
-        subtotal,
+        items: verifiedItems,
+        subtotal: serverSubtotal,
         shipping,
-        total,
+        total: serverTotal,
         customer_name: address.name,
         customer_phone: address.phone,
         address,
         payment_method: paymentMethod,
         status: 'placed',
+        coupon_code: couponCode || null,
+        discount: serverDiscount,
       })
       .select()
       .single()
@@ -48,36 +92,43 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Reduce stock for each ordered item ──────────────────
-    for (const item of items) {
+    for (const item of verifiedItems) {
       try {
-        // Fetch current stock first
-        const { data: product, error: fetchErr } = await supabase
+        const { data: product } = await supabase
           .from('products')
           .select('stock')
           .eq('id', item.productId)
           .single()
 
-        if (fetchErr || !product) {
-          console.warn(`Could not fetch stock for product ${item.productId}:`, fetchErr)
-          continue
+        if (product) {
+          const newStock = Math.max(0, (product.stock || 0) - item.qty)
+          await supabase
+            .from('products')
+            .update({ stock: newStock })
+            .eq('id', item.productId)
         }
+      } catch (e) { console.warn('Stock update error', e) }
+    }
 
-        const newStock = Math.max(0, (product.stock || 0) - item.qty)
-        const { error: stockErr } = await supabase
-          .from('products')
-          .update({ stock: newStock, updated_at: new Date().toISOString() })
-          .eq('id', item.productId)
-
-        if (stockErr) {
-          console.warn(`Stock update failed for ${item.productId}:`, stockErr)
+    // ── Increment coupon used_count if coupon was used ───────
+    if (couponCode && serverDiscount > 0) {
+      try {
+        const { data: coupon } = await supabase
+          .from('coupons')
+          .select('used_count')
+          .eq('code', couponCode.toUpperCase())
+          .single()
+        if (coupon) {
+          await supabase
+            .from('coupons')
+            .update({ used_count: (coupon.used_count || 0) + 1 })
+            .eq('code', couponCode.toUpperCase())
         }
-      } catch (stockUpdateErr) {
-        console.warn('Non-blocking stock update error:', stockUpdateErr)
-      }
+      } catch (e) { console.warn('Coupon update error', e) }
     }
 
     // ── Build WhatsApp message ──────────────────────────────
-    const itemLines = items
+    const itemLines = verifiedItems
       .map((i: any) => `• ${i.name} × ${i.qty} (Size: ${i.size}) — ₹${(i.price * i.qty).toLocaleString('en-IN')}`)
       .join('\n')
 
@@ -88,9 +139,10 @@ Order ID: ${orderId}
 Items:
 ${itemLines}
 
-Subtotal: ₹${subtotal.toLocaleString('en-IN')}
+Subtotal: ₹${serverSubtotal.toLocaleString('en-IN')}
 Shipping: ${shipping === 0 ? 'Free' : '₹' + shipping}
-*Total: ₹${total.toLocaleString('en-IN')}*
+Discount: ${serverDiscount > 0 ? '-₹' + serverDiscount : 'None'}
+*Total: ₹${serverTotal.toLocaleString('en-IN')}*
 
 Delivery to:
 ${address.name}
@@ -111,11 +163,12 @@ Payment: Will pay via UPI/bank transfer`)
 Order ID: ${orderId}
 
 ITEMS:
-${items.map((i: any) => `${i.name} x${i.qty} (Size: ${i.size}) — Rs.${i.price * i.qty}`).join('\n')}
+${verifiedItems.map((i: any) => `${i.name} x${i.qty} (Size: ${i.size}) — Rs.${i.price * i.qty}`).join('\n')}
 
-Subtotal: Rs.${subtotal}
+Subtotal: Rs.${serverSubtotal}
 Shipping: ${shipping === 0 ? 'Free' : 'Rs.' + shipping}
-Total: Rs.${total}
+Discount: -Rs.${serverDiscount}
+Total: Rs.${serverTotal}
 
 DELIVERY ADDRESS:
 ${address.name}

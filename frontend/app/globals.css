@@ -1,31 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ─── ROOT COLORS ─── */
+/* ─── ROOT COLORS — GOLD & BLACK LUXURY ─── */
 :root {
-  --beige:    #EAE3DC;
-  --sage:     #C7D3C0;
-  --pink:     #E8D4D8;
-  --offwhite: #F8F7F5;
-  --gold:     #b8965a;
-  --text:     #2a2622;
-  --mid:      #6b635c;
-  --light:    #9e958e;
-  --border:   rgba(42,38,34,0.12);
+  --bg:          #0a0a0a;
+  --bg-elevated: #111111;
+  --surface:     #1a1a1a;
+  --gold:        #C9A84C;
+  --gold-light:  #D4B85A;
+  --gold-dark:   #A88B3D;
+  --text:        #F5F0E8;
+  --text-soft:   #B8B0A4;
+  --text-muted:  #6B635C;
+  --offwhite:    #0a0a0a;
+  --border:      rgba(201,168,76,0.12);
+  --border-solid:#1f1d1a;
 }
-
-/* DARK MODE */
-/* .dark {
-  --offwhite: #111111;
-  --beige:    #1a1816;
-  --text:     #f0ece6;
-  --mid:      #9e958e;
-  --light:    #6b635c;
-  --border:   rgba(240,236,230,0.08);
-} */
 
 /* ─── BASE ─── */
 html {
@@ -33,46 +26,134 @@ html {
 }
 
 body {
-  background: var(--offwhite);
+  background: var(--bg);
   color: var(--text);
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Montserrat', system-ui, sans-serif;
   font-weight: 400;
   overflow-x: hidden;
 }
 
-/* ─── SCROLLBAR (CLEAN) ─── */
+/* Premium grain overlay */
+body.grain::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+}
+
+/* ─── SCROLLBAR ─── */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
 }
 ::-webkit-scrollbar-thumb {
+  background: var(--gold-dark);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
   background: var(--gold);
 }
 
 /* ─── TYPOGRAPHY ─── */
 .font-serif {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', Georgia, serif;
 }
 
-/* ─── MINIMAL REVEAL (KEEP ONLY THIS) ─── */
+/* ─── SELECTION ─── */
+::selection {
+  background: var(--gold);
+  color: var(--bg);
+}
+
+/* ─── SMOOTH REVEAL ─── */
 .reveal {
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 0.9s ease, transform 0.9s ease;
+  transition: opacity 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 .reveal.visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-/* ─── BUTTONS (PREMIUM STYLE) ─── */
+/* ─── GOLD SHIMMER LINE ─── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.gold-shimmer {
+  background: linear-gradient(
+    110deg,
+    var(--gold-dark) 0%,
+    var(--gold-light) 25%,
+    var(--gold) 50%,
+    var(--gold-light) 75%,
+    var(--gold-dark) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.gold-shimmer-text {
+  background: linear-gradient(
+    110deg,
+    var(--gold-dark) 0%,
+    var(--gold-light) 30%,
+    #E8D5A0 50%,
+    var(--gold-light) 70%,
+    var(--gold-dark) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 4s ease-in-out infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── GOLD GLOW ─── */
+.gold-glow {
+  box-shadow: 0 0 20px rgba(201,168,76,0.15), 0 0 60px rgba(201,168,76,0.05);
+}
+
+.gold-glow-hover:hover {
+  box-shadow: 0 0 25px rgba(201,168,76,0.2), 0 0 80px rgba(201,168,76,0.08);
+}
+
+/* ─── BUTTONS (PREMIUM) ─── */
 @layer components {
 
   .btn-primary {
-    @apply bg-[var(--text)] text-[var(--offwhite)] px-8 py-3 text-[0.75rem] tracking-[0.25em] uppercase font-medium transition-all duration-300 hover:bg-[var(--gold)];
+    @apply bg-[var(--gold)] text-[var(--bg)] px-8 py-3 text-[0.75rem] tracking-[0.25em] uppercase font-medium transition-all duration-500;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+  .btn-primary:hover {
+    @apply bg-[var(--gold-light)];
+    box-shadow: 0 4px 30px rgba(201,168,76,0.3);
+    transform: translateY(-1px);
   }
 
   .btn-outline {
-    @apply border border-[var(--text)] text-[var(--text)] px-8 py-3 text-[0.75rem] tracking-[0.25em] uppercase font-medium transition-all duration-300 hover:bg-[var(--text)] hover:text-[var(--offwhite)];
+    @apply border border-[var(--gold)] text-[var(--gold)] px-8 py-3 text-[0.75rem] tracking-[0.25em] uppercase font-medium transition-all duration-500;
+  }
+  .btn-outline:hover {
+    @apply bg-[var(--gold)] text-[var(--bg)];
+    box-shadow: 0 4px 30px rgba(201,168,76,0.2);
   }
 
   .btn-men,
@@ -81,34 +162,38 @@ body {
   }
 
   .btn-men {
-    @apply bg-[var(--sage)] text-[var(--text)] hover:opacity-80;
+    @apply bg-[var(--surface)] text-[var(--gold)] border border-[var(--border)] hover:bg-[var(--gold)] hover:text-[var(--bg)];
   }
 
   .btn-women {
-    @apply bg-[var(--pink)] text-[var(--text)] hover:opacity-80;
+    @apply bg-[var(--surface)] text-[var(--gold)] border border-[var(--border)] hover:bg-[var(--gold)] hover:text-[var(--bg)];
   }
 
   .btn-link {
-    @apply text-[0.75rem] tracking-[0.2em] uppercase border-b border-transparent hover:border-[var(--text)] transition-all;
+    @apply text-[0.75rem] tracking-[0.2em] uppercase border-b border-transparent hover:border-[var(--gold)] text-[var(--gold)] transition-all;
   }
 
   /* SECTION LABEL */
   .section-label {
-    @apply text-[var(--gold)] text-[0.7rem] tracking-[0.4em] uppercase mb-3;
+    @apply text-[var(--gold)] text-[0.7rem] tracking-[0.4em] uppercase mb-3 font-medium;
   }
 
   /* SECTION TITLE */
   .section-title {
-    @apply font-serif text-[clamp(2.5rem,5vw,4rem)] leading-[1.1];
+    @apply font-serif text-[clamp(2.5rem,5vw,4rem)] leading-[1.1] text-[var(--text)];
   }
 
   /* INPUT */
   .input-base {
-    @apply w-full border-0 border-b border-[var(--border)] py-3 text-sm bg-transparent outline-none focus:border-[var(--gold)];
+    @apply w-full border-0 border-b border-[var(--border)] py-3 text-sm bg-transparent outline-none text-[var(--text)] placeholder:text-[var(--text-muted)];
+    transition: border-color 0.4s ease;
+  }
+  .input-base:focus {
+    border-color: var(--gold);
   }
 }
 
-/* ─── SAFE CUSTOM CURSOR (OPTIONAL) ─── */
+/* ─── PREMIUM CURSOR ─── */
 @media (pointer: fine) {
   .cursor-dot,
   .cursor-ring {
@@ -118,19 +203,20 @@ body {
   }
 
   .cursor-dot {
-    width: 6px;
-    height: 6px;
-    background: var(--text);
+    width: 5px;
+    height: 5px;
+    background: var(--gold);
     border-radius: 50%;
     transform: translate(-50%, -50%);
   }
 
   .cursor-ring {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border: 1px solid var(--gold);
     border-radius: 50%;
     transform: translate(-50%, -50%);
+    opacity: 0.5;
   }
 }
 
@@ -139,4 +225,20 @@ body {
   .cursor-ring {
     display: none;
   }
+}
+
+/* ─── PREMIUM DIVIDER ─── */
+.gold-divider {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+/* ─── LUXURY CARD HOVER ─── */
+.luxury-card {
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.6s ease;
+}
+.luxury-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 30px rgba(201,168,76,0.08);
 }

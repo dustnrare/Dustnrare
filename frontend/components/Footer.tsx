@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   const links = {
@@ -24,24 +25,34 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[var(--surface)] pt-20 pb-8">
+    <footer className="bg-[var(--bg-elevated)] pt-20 pb-8 border-t border-[var(--border)]">
       <div className="max-w-[1360px] mx-auto px-6 md:px-12">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-16">
           {/* Brand */}
           <div className="col-span-2">
-            <div className="font-serif text-3xl md:text-4xl tracking-[0.12em] mb-5 leading-none text-[var(--text)]">
-              DUST
-              <span className="text-[var(--gold)]">·</span>N
-              <span className="text-[var(--gold)]">·</span>
-              RARE
+            <div className="flex items-center gap-3 mb-5">
+              <Image
+                src="/whitelogo.png"
+                alt="Dust N Rare"
+                width={40}
+                height={40}
+                className="w-10 h-10 object-contain"
+                style={{ filter: 'invert(1)' }}
+              />
+              <div className="font-serif text-2xl md:text-3xl tracking-[0.12em] leading-none text-[var(--text)]">
+                DUST
+                <span className="text-[var(--gold)]">·</span>N
+                <span className="text-[var(--gold)]">·</span>
+                RARE
+              </div>
             </div>
 
             <p className="text-[0.7rem] leading-[2] tracking-wider max-w-[220px] text-[var(--text-soft)]">
-              Quiet Luxury Streetwear
+              Premium Streetwear
               <br />
               Original + Surplus
               <br />
-              Ranchi · Est. 2026
+              India · Est. 2026
             </p>
 
             {/* Social Icons */}
@@ -51,7 +62,7 @@ export default function Footer() {
                 href="https://www.instagram.com/dustnrare.in"
                 target="_blank"
                 rel="noreferrer"
-                className="text-[var(--text-muted)] hover:text-[var(--gold)] transition"
+                className="text-[var(--text-muted)] hover:text-[var(--gold)] transition duration-300"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -71,7 +82,7 @@ export default function Footer() {
                 href="https://wa.me/918789277058"
                 target="_blank"
                 rel="noreferrer"
-                className="text-[var(--text-muted)] hover:text-[var(--gold)] transition"
+                className="text-[var(--text-muted)] hover:text-[var(--gold)] transition duration-300"
               >
                 <svg
                   width="15"
@@ -87,8 +98,8 @@ export default function Footer() {
 
               {/* Call */}
               <a
-                href="tel:+91XXXXXXXXXX"
-                className="text-[var(--text-muted)] hover:text-[var(--gold)] transition"
+                href="tel:+918789277058"
+                className="text-[var(--text-muted)] hover:text-[var(--gold)] transition duration-300"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -104,7 +115,7 @@ export default function Footer() {
               {/* Mail */}
               <a
                 href="mailto:dustnrare@gmail.com"
-                className="text-[var(--text-muted)] hover:text-[var(--gold)] transition"
+                className="text-[var(--text-muted)] hover:text-[var(--gold)] transition duration-300"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -132,7 +143,7 @@ export default function Footer() {
                   <li key={label}>
                     <Link
                       href={href}
-                      className="text-[0.7rem] tracking-wide text-[var(--text-soft)] hover:text-[var(--text)] transition"
+                      className="text-[0.7rem] tracking-wide text-[var(--text-soft)] hover:text-[var(--gold)] transition duration-300"
                     >
                       {label}
                     </Link>

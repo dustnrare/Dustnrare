@@ -5,35 +5,38 @@ module.exports = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         brand: {
-          beige:    '#EAE3DC',
-          sage:     '#C7D3C0',
-          lavender: '#D8D4E8',
-          offwhite: '#F8F7F5',
-          pink:     '#E8D4D8',
-          gold:     '#b8965a',
-          text:     '#2a2622',
-          mid:      '#6b635c',
-          light:    '#9e958e',
+          bg:        '#0a0a0a',
+          elevated:  '#111111',
+          surface:   '#1a1a1a',
+          gold:      '#C9A84C',
+          'gold-lt': '#D4B85A',
+          'gold-dk': '#A88B3D',
+          text:      '#F5F0E8',
+          'text-s':  '#B8B0A4',
+          muted:     '#6B635C',
         }
       },
       fontFamily: {
-        serif:  ['Playfair Display', 'Georgia', 'serif'],
-        sans:   ['Poppins', 'system-ui', 'sans-serif'],
+        serif: ['Cormorant Garamond', 'Georgia', 'serif'],
+        sans:  ['Poppins', 'system-ui', 'sans-serif'],
       },
       letterSpacing: {
         widest: '0.3em',
         ultra:  '0.5em',
       },
       animation: {
-        'fade-up':     'fadeUp 0.8s ease forwards',
-        'slow-zoom':   'slowZoom 18s ease-in-out infinite alternate',
-        'marquee':     'marquee 20s linear infinite',
-        'scroll-line': 'scrollLine 2s ease-in-out infinite',
+        'fade-up':       'fadeUp 0.8s ease forwards',
+        'slow-zoom':     'slowZoom 18s ease-in-out infinite alternate',
+        'marquee':       'marquee 25s linear infinite',
+        'scroll-line':   'scrollLine 2s ease-in-out infinite',
+        'shimmer':       'shimmer 3s ease-in-out infinite',
+        'glow-pulse':    'glowPulse 3s ease-in-out infinite',
+        'slide-up':      'slideUp 0.8s cubic-bezier(0.25,0.46,0.45,0.94) forwards',
+        'fade-in-scale': 'fadeInScale 0.6s ease forwards',
       },
       keyframes: {
         fadeUp: {
@@ -51,6 +54,22 @@ module.exports = {
         scrollLine: {
           '0%, 100%': { opacity: 0.3, transform: 'scaleY(0.5)' },
           '50%':      { opacity: 1,   transform: 'scaleY(1)' },
+        },
+        shimmer: {
+          '0%':   { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        glowPulse: {
+          '0%, 100%': { boxShadow: '0 0 15px rgba(201,168,76,0.1)' },
+          '50%':      { boxShadow: '0 0 30px rgba(201,168,76,0.25)' },
+        },
+        slideUp: {
+          from: { opacity: 0, transform: 'translateY(40px)' },
+          to:   { opacity: 1, transform: 'translateY(0)' },
+        },
+        fadeInScale: {
+          from: { opacity: 0, transform: 'scale(0.95)' },
+          to:   { opacity: 1, transform: 'scale(1)' },
         },
       },
     },

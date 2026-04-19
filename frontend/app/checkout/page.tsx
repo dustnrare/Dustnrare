@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,6 +9,13 @@ import { ordersApi } from "@/lib/api";
 import toast from "react-hot-toast";
 
 type SendMethod = "whatsapp" | "email" | null;
+
+interface CouponData {
+  code: string;
+  discount_type: 'percentage' | 'flat';
+  discount_value: number;
+  discountAmount: number;
+}
 
 function F({
   label,
@@ -21,7 +28,7 @@ function F({
 }) {
   return (
     <div className={half ? "" : "md:col-span-2"}>
-      <label className="text-[0.48rem] tracking-widest uppercase text-[var(--mid)] block mb-1.5">
+      <label className="text-[0.48rem] tracking-widest uppercase text-[var(--text-muted)] block mb-1.5">
         {label}
       </label>
       {children}
@@ -31,9 +38,19 @@ function F({
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const { items, total, clearCart } = useCartStore();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const [placing, setPlacing] = useState(false);
   const [method, setMethod] = useState<SendMethod>(null);
+
+  // Coupon state
+  const [couponInput, setCouponInput] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<CouponData | null>(null);
 
   const [address, setAddress] = useState({
     name: "",
@@ -46,19 +63,58 @@ export default function CheckoutPage() {
   });
 
   const subtotal = total();
-  const shipping = subtotal >= 999 ? 0 : 60;
-  const grandTotal = subtotal + shipping;
+  const discount = appliedCoupon?.discountAmount || 0;
+  const shipping = (subtotal - discount) >= 999 ? 0 : 60;
+  const grandTotal = Math.max(0, subtotal - discount + shipping);
 
-  if (!items.length)
+  // Apply coupon
+  async function handleApplyCoupon() {
+    const code = couponInput.trim().toUpperCase();
+    if (!code) { toast.error("Enter a coupon code"); return; }
+    setCouponLoading(true);
+    try {
+      const res = await fetch("/api/coupon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.message || "Invalid coupon");
+        return;
+      }
+      setAppliedCoupon({
+        code: data.code,
+        discount_type: data.discount_type,
+        discount_value: data.discount_value,
+        discountAmount: data.discountAmount,
+      });
+      toast.success(`Coupon "${data.code}" applied! You save ₹${data.discountAmount.toLocaleString()}`);
+    } catch {
+      toast.error("Failed to validate coupon");
+    } finally {
+      setCouponLoading(false);
+    }
+  }
+
+  function removeCoupon() {
+    setAppliedCoupon(null);
+    setCouponInput("");
+    toast.success("Coupon removed");
+  }
+
+  if (!mounted || !items.length)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--beige)]">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--bg)]">
         <div className="text-center">
-          <p className="font-serif text-2xl text-[var(--text)] mb-4">
-            Your bag is empty
+          <p className="font-serif text-2xl text-[var(--text)] mb-4 uppercase tracking-widest">
+            {!mounted ? "Loading Bag..." : "Your bag is empty"}
           </p>
-          <Link href="/shop" className="btn-primary inline-block">
-            Shop Now
-          </Link>
+          {mounted && (
+            <Link href="/shop" className="btn-primary inline-block">
+              Shop Now
+            </Link>
+          )}
         </div>
       </div>
     );
@@ -102,6 +158,8 @@ export default function CheckoutPage() {
         subtotal,
         shipping,
         total: grandTotal,
+        couponCode: appliedCoupon?.code || undefined,
+        discount,
       });
 
       clearCart();
@@ -123,7 +181,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-20 bg-[var(--offwhite)]">
+    <div className="min-h-screen pt-24 pb-20 bg-[var(--bg)]">
       <div className="max-w-[1100px] mx-auto px-6">
         <div className="mb-10">
           <div className="section-label">Checkout</div>
@@ -134,7 +192,7 @@ export default function CheckoutPage() {
 
         <div className="grid md:grid-cols-[1fr_380px] gap-8 items-start">
           {/* LEFT — Address */}
-          <div className="border border-[var(--border)] p-6 bg-[var(--offwhite)]">
+          <div className="border border-[var(--border)] p-6 bg-[var(--bg-elevated)]">
             <h2 className="text-[0.55rem] tracking-widest uppercase text-[var(--gold)] mb-5">
               Delivery Address
             </h2>
@@ -229,7 +287,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* HOW IT WORKS */}
-            <div className="mt-8 p-4 bg-[var(--beige)] border border-[var(--border)]">
+            <div className="mt-8 p-4 bg-[var(--surface)] border border-[var(--border)]">
               <p className="text-[0.55rem] tracking-widest uppercase text-[var(--gold)] mb-3">
                 How ordering works
               </p>
@@ -245,7 +303,7 @@ export default function CheckoutPage() {
                     <span className="text-[var(--gold)] text-[0.55rem] font-medium w-4 flex-shrink-0">
                       {n}.
                     </span>
-                    <span className="text-[0.62rem] text-[var(--mid)]">
+                    <span className="text-[0.62rem] text-[var(--text-soft)]">
                       {t}
                     </span>
                   </div>
@@ -269,7 +327,7 @@ export default function CheckoutPage() {
               <button
                 onClick={() => handlePlaceOrder("email")}
                 disabled={placing}
-                className="flex items-center justify-center gap-2 py-4 bg-[var(--text)] text-[var(--offwhite)] text-[0.6rem] tracking-[0.18em] uppercase font-medium hover:bg-[var(--gold)] transition-colors disabled:opacity-50"
+                className="flex items-center justify-center gap-2 py-4 bg-[var(--gold)] text-[var(--bg)] text-[0.6rem] tracking-[0.18em] uppercase font-medium hover:bg-[var(--gold-light)] transition-colors disabled:opacity-50"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
@@ -279,13 +337,13 @@ export default function CheckoutPage() {
               </button>
             </div>
 
-            <p className="text-center text-[0.5rem] text-[var(--light)] tracking-widest uppercase mt-3">
+            <p className="text-center text-[0.5rem] text-[var(--text-muted)] tracking-widest uppercase mt-3">
               Payment collected after order confirmation · UPI / Bank Transfer
             </p>
           </div>
 
           {/* RIGHT — Order Summary */}
-          <div className="border border-[var(--border)] p-6 sticky top-24 bg-[var(--offwhite)]">
+          <div className="border border-[var(--border)] p-6 sticky top-24 bg-[var(--bg-elevated)]">
             <h2 className="text-[0.55rem] tracking-widest uppercase text-[var(--gold)] mb-5">
               Order Summary
             </h2>
@@ -294,7 +352,7 @@ export default function CheckoutPage() {
               {items.map((item, i) => (
                 <div key={i} className="flex gap-3">
                   <div
-                    className="w-14 h-18 bg-[var(--beige)] flex-shrink-0 overflow-hidden"
+                    className="w-14 bg-[var(--surface)] flex-shrink-0 overflow-hidden"
                     style={{ height: 72 }}
                   >
                     <Image
@@ -309,10 +367,10 @@ export default function CheckoutPage() {
                     <p className="font-serif text-[0.9rem] text-[var(--text)] leading-tight truncate">
                       {item.product.name}
                     </p>
-                    <p className="text-[0.48rem] tracking-widest uppercase text-[var(--light)] mt-0.5">
+                    <p className="text-[0.48rem] tracking-widest uppercase text-[var(--text-muted)] mt-0.5">
                       {item.size} · Qty {item.qty}
                     </p>
-                    <p className="text-[0.65rem] font-medium text-[var(--text)] mt-1">
+                    <p className="text-[0.65rem] font-medium text-[var(--gold)] mt-1">
                       ₹{(item.product.price * item.qty).toLocaleString()}
                     </p>
                   </div>
@@ -320,14 +378,62 @@ export default function CheckoutPage() {
               ))}
             </div>
 
+            {/* COUPON CODE */}
+            <div className="mb-4 pt-4 border-t border-[var(--border)]">
+              <p className="text-[0.5rem] tracking-widest uppercase text-[var(--gold)] mb-3">
+                Have a coupon?
+              </p>
+              {appliedCoupon ? (
+                <div className="flex items-center justify-between bg-[var(--gold)]/10 border border-[var(--gold)]/20 px-3 py-2">
+                  <div>
+                    <span className="text-[0.6rem] tracking-widest uppercase text-[var(--gold)] font-semibold">
+                      {appliedCoupon.code}
+                    </span>
+                    <span className="text-[0.5rem] text-[var(--text-soft)] ml-2">
+                      −₹{appliedCoupon.discountAmount.toLocaleString()} off
+                    </span>
+                  </div>
+                  <button
+                    onClick={removeCoupon}
+                    className="text-[0.45rem] tracking-widest uppercase text-[var(--text-muted)] hover:text-red-400 transition-colors"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => e.key === "Enter" && handleApplyCoupon()}
+                    placeholder="Enter code"
+                    className="flex-1 bg-transparent border border-[var(--border)] px-3 py-2 text-[0.6rem] tracking-widest uppercase text-[var(--text)] outline-none focus:border-[var(--gold)] placeholder:text-[var(--text-muted)] transition-colors"
+                  />
+                  <button
+                    onClick={handleApplyCoupon}
+                    disabled={couponLoading}
+                    className="px-4 py-2 bg-[var(--gold)] text-[var(--bg)] text-[0.5rem] tracking-widest uppercase font-medium hover:bg-[var(--gold-light)] transition-colors disabled:opacity-50"
+                  >
+                    {couponLoading ? "..." : "Apply"}
+                  </button>
+                </div>
+              )}
+            </div>
+
             <div className="space-y-2 pt-4 border-t border-[var(--border)]">
-              <div className="flex justify-between text-[0.6rem] text-[var(--mid)]">
+              <div className="flex justify-between text-[0.6rem] text-[var(--text-soft)]">
                 <span>Subtotal</span>
                 <span>₹{subtotal.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between text-[0.6rem] text-[var(--mid)]">
+              {appliedCoupon && (
+                <div className="flex justify-between text-[0.6rem] text-[var(--gold)]">
+                  <span>Discount ({appliedCoupon.code})</span>
+                  <span>−₹{discount.toLocaleString()}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-[0.6rem] text-[var(--text-soft)]">
                 <span>Shipping</span>
-                <span className={shipping === 0 ? "text-green-600" : ""}>
+                <span className={shipping === 0 ? "text-green-500" : ""}>
                   {shipping === 0 ? "Free" : `₹${shipping}`}
                 </span>
               </div>
@@ -335,16 +441,16 @@ export default function CheckoutPage() {
                 <span className="text-[0.58rem] tracking-widest uppercase text-[var(--text)]">
                   Total
                 </span>
-                <span className="font-serif text-xl text-[var(--text)]">
+                <span className="font-serif text-xl text-[var(--gold)]">
                   ₹{grandTotal.toLocaleString()}
                 </span>
               </div>
             </div>
 
-            <div className="mt-5 p-3 bg-[var(--beige)] text-center">
-              <p className="text-[0.52rem] text-[var(--mid)] leading-relaxed">
+            <div className="mt-5 p-3 bg-[var(--surface)] text-center border border-[var(--border)]">
+              <p className="text-[0.52rem] text-[var(--text-soft)] leading-relaxed">
                 Pay via{" "}
-                <strong className="font-medium text-[var(--text)]">
+                <strong className="font-medium text-[var(--gold)]">
                   UPI / Bank Transfer
                 </strong>{" "}
                 after we confirm your order on WhatsApp or Email
