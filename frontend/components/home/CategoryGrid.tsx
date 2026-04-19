@@ -32,7 +32,7 @@ const INITIAL_CATEGORIES = [
     img: "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?w=600&h=800&fit=crop&q=80",
   },
 ];
-
+// 
 export default function CategoryGrid() {
   const [categories, setCategories] = useState(INITIAL_CATEGORIES);
 
@@ -42,7 +42,7 @@ export default function CategoryGrid() {
         const products = await productsApi.getAll();
         const menCount = products.filter(p => p.category === 'men').length;
         const womenCount = products.filter(p => p.category === 'women').length;
-        
+
         setCategories(prev => prev.map(c => {
           if (c.id === 'men') return { ...c, count: `${menCount} Pieces` };
           if (c.id === 'women') return { ...c, count: `${womenCount} Pieces` };
