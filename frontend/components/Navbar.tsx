@@ -13,9 +13,11 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { count, openCart } = useCartStore();
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -43,60 +45,45 @@ export default function Navbar() {
 
       <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between transition-all duration-700 ${navClass}`}>
         
-        {/* Logo */}
-        <Link href="/" className="relative group">
-          <span className="font-serif text-[1.4rem] md:text-2xl tracking-[0.25em] md:tracking-[0.3em] uppercase transition-all duration-300 group-hover:text-[var(--gold)]">
-             DUST<span className="text-[var(--gold)] mx-0.5">·</span>N
-             <span className="text-[var(--gold)] mx-0.5">·</span>RARE
-          </span>
-          <span className={`absolute -bottom-1 left-0 w-0 h-px transition-all duration-500 group-hover:w-full ${linkLineClass}`} />
-        </Link>
-
-        {/* Center Links (Desktop only) */}
-        <ul className="hidden md:flex gap-10 list-none items-center absolute left-1/2 -translate-x-1/2">
-          {links.map((l) => (
-            <li key={l.href}>
-              <Link
-                href={l.href}
-                className={`relative group text-[0.55rem] tracking-[0.25em] uppercase font-semibold transition-colors duration-300 ${isSolid ? "hover:text-[var(--gold)]" : "hover:text-white/70"}`}
-              >
-                {l.label}
-                <span className={`absolute -bottom-2 left-0 w-0 h-px transition-all duration-300 group-hover:w-full ${linkLineClass}`} />
-              </Link>
-            </li>
-          ))}
-        </ul>
-
-        {/* Right Controls */}
-        <div className="flex items-center gap-5">
+        {/* Left Controls - Hamburger */}
+        <div className="flex items-center w-[20%] md:w-1/3">
           <button
-            onClick={() => setSearchOpen(true)}
-            className="hidden md:flex items-center transition-opacity hover:opacity-70"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.35-4.35" />
-            </svg>
-          </button>
-
-          <button
-            onClick={openCart}
-            className={`text-[0.45rem] md:text-[0.5rem] tracking-[0.25em] uppercase px-3 py-2 md:px-4 md:py-2.5 font-semibold border transition-all duration-300 ${
-              isSolid 
-                ? "border-[var(--text)] hover:bg-[var(--text)] hover:text-white" 
-                : "border-white hover:bg-white hover:text-black"
-            }`}
-          >
-            Bag ({count()})
-          </button>
-
-          <button
-            className="md:hidden flex flex-col items-center justify-center gap-[5px] w-8 h-8 relative"
+            className="flex flex-col items-start justify-center gap-[5px] w-8 h-8 relative group"
             onClick={() => setMobileOpen(true)}
           >
             <span className={`block w-6 h-[1.5px] transition-all duration-300 ${isSolid ? "bg-[var(--text)]" : "bg-white"}`} />
-            <span className={`block w-6 h-[1.5px] transition-all duration-300 w-[18px] ml-auto ${isSolid ? "bg-[var(--text)]" : "bg-white"}`} />
+            <span className={`block w-4 h-[1.5px] transition-all duration-300 group-hover:w-6 ${isSolid ? "bg-[var(--text)]" : "bg-white"}`} />
             <span className={`block w-6 h-[1.5px] transition-all duration-300 ${isSolid ? "bg-[var(--text)]" : "bg-white"}`} />
+          </button>
+        </div>
+
+        {/* Center Logo */}
+        <div className="w-[60%] md:w-1/3 flex justify-center items-center text-center">
+          <Link href="/" className="relative group inline-block">
+            <span className="font-serif text-[1.4rem] md:text-2xl tracking-[0.25em] md:tracking-[0.3em] uppercase transition-all duration-300 group-hover:text-[var(--gold)]">
+               DUST<span className="text-[var(--gold)] mx-0.5">·</span>N
+               <span className="text-[var(--gold)] mx-0.5">·</span>RARE
+            </span>
+            <span className={`absolute -bottom-1 left-0 w-0 h-px transition-all duration-500 group-hover:w-full ${linkLineClass}`} />
+          </Link>
+        </div>
+
+        {/* Right Controls - Bag */}
+        <div className="flex items-center justify-end w-[20%] md:w-1/3">
+          <button
+            onClick={openCart}
+            className={`relative flex items-center justify-center transition-opacity duration-300 hover:opacity-70 ${
+              isSolid ? "text-[var(--text)]" : "text-white"
+            }`}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <path d="M16 10a4 4 0 0 1-8 0" />
+            </svg>
+            <span className="absolute -top-1.5 -right-2 text-[0.55rem] bg-[var(--gold)] text-white min-w-[15px] h-[15px] px-1 rounded-full flex items-center justify-center font-bold">
+              {mounted ? count() : 0}
+            </span>
           </button>
         </div>
       </nav>

@@ -29,11 +29,8 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-16">
           {/* Brand */}
           <div className="col-span-2">
-            <div className="font-serif text-3xl md:text-4xl tracking-[0.12em] mb-5 leading-none text-[var(--text)]">
-              DUST
-              <span className="text-[var(--gold)]">·</span>N
-              <span className="text-[var(--gold)]">·</span>
-              RARE
+            <div className="mb-5">
+              <img src="/logo-text.png" alt="DUST N RARE" className="h-10 object-contain" />
             </div>
 
             <p className="text-[0.7rem] leading-[2] tracking-wider max-w-[220px] text-[var(--text-soft)]">
@@ -41,7 +38,7 @@ export default function Footer() {
               <br />
               Original + Surplus
               <br />
-              Ranchi · Est. 2026
+              New Delhi · Est. 2026
             </p>
 
             {/* Social Icons */}

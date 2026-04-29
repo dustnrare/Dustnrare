@@ -133,3 +133,32 @@ INSERT INTO products (name, category, fit, price, original_price, badge, sizes, 
   'The simplest thing we make. The hardest to get right. 220 GSM, garment-dyed, raw cut hem.',
   '220 GSM Cotton · Raw-cut hem · Garment dyed', true
 );
+
+-- ── COUPONS ─────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS coupons (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  code TEXT UNIQUE NOT NULL,
+  discount_type TEXT CHECK (discount_type IN ('percentage','fixed')) NOT NULL,
+  discount_value INTEGER NOT NULL CHECK (discount_value >= 0),
+  is_active BOOLEAN DEFAULT true,
+  usage_count INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ── TESTIMONIALS ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS testimonials (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  stars INTEGER NOT NULL CHECK (stars >= 1 AND stars <= 5),
+  text TEXT NOT NULL,
+  author TEXT NOT NULL,
+  location TEXT NOT NULL,
+  product TEXT NOT NULL,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE testimonials ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can read active testimonials" ON testimonials FOR SELECT USING (is_active = true);
+ALTER TABLE coupons ENABLE ROW LEVEL SECURITY;

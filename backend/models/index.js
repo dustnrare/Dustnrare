@@ -88,8 +88,29 @@ OrderSchema.pre('save', async function(next) {
   next()
 })
 
+// ── COUPON ───────────────────────────────────────────────────
+const CouponSchema = new mongoose.Schema({
+  code:          { type: String, required: true, unique: true, uppercase: true, trim: true },
+  discountType:  { type: String, enum: ['percentage', 'fixed'], required: true },
+  discountValue: { type: Number, required: true, min: 0 },
+  isActive:      { type: Boolean, default: true },
+  usageCount:    { type: Number, default: 0 },
+}, { timestamps: true })
+
+// ── TESTIMONIAL ─────────────────────────────────────────────
+const TestimonialSchema = new mongoose.Schema({
+  stars:    { type: Number, required: true, min: 1, max: 5 },
+  text:     { type: String, required: true },
+  author:   { type: String, required: true },
+  location: { type: String, required: true },
+  product:  { type: String, required: true },
+  isActive: { type: Boolean, default: true },
+}, { timestamps: true })
+
 module.exports = {
-  User:    mongoose.model('User',    UserSchema),
-  Product: mongoose.model('Product', ProductSchema),
-  Order:   mongoose.model('Order',   OrderSchema),
+  User:        mongoose.model('User',        UserSchema),
+  Product:     mongoose.model('Product',     ProductSchema),
+  Order:       mongoose.model('Order',       OrderSchema),
+  Coupon:      mongoose.model('Coupon',      CouponSchema),
+  Testimonial: mongoose.model('Testimonial', TestimonialSchema),
 }

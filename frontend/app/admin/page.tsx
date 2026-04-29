@@ -6,7 +6,7 @@ import Image from "next/image";
 import { adminApi } from "@/lib/api";
 import toast from "react-hot-toast";
 
-type Section = "overview" | "products" | "upload" | "orders" | "lookbook";
+type Section = "overview" | "products" | "upload" | "orders" | "lookbook" | "coupons" | "testimonials";
 const SIZES_LIST = ["XS", "S", "M", "L", "XL", "XXL"];
 
 interface Product {
@@ -36,6 +36,8 @@ export default function AdminPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [revenue, setRevenue] = useState(0);
   const [lookbook, setLookbook] = useState<any[]>([]);
+  const [coupons, setCoupons] = useState<any[]>([]);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const [uploading, setUploading] = useState(false);
@@ -68,6 +70,8 @@ export default function AdminPage() {
       fetchProducts();
       fetchOrders();
       fetchLookbook();
+      fetchCoupons();
+      fetchTestimonials();
     }
   }, [authenticated, password]);
 
@@ -130,6 +134,20 @@ export default function AdminPage() {
     } catch {
       toast.error("Failed to load lookbook");
     }
+  }
+
+  async function fetchCoupons() {
+    try {
+      const data = await adminApi.getCoupons(password);
+      setCoupons(data.coupons || []);
+    } catch { toast.error("Failed to load coupons"); }
+  }
+
+  async function fetchTestimonials() {
+    try {
+      const data = await adminApi.getTestimonials(password);
+      setTestimonials(data.testimonials || []);
+    } catch { toast.error("Failed to load testimonials"); }
   }
 
   function toggleSize(s: string) {
@@ -270,6 +288,8 @@ export default function AdminPage() {
     { key: "products", icon: "◈", label: "Products" },
     { key: "upload", icon: "⊕", label: "Add Product" },
     { key: "lookbook", icon: "◭", label: "Lookbook" },
+    { key: "coupons", icon: "🎫", label: "Coupons" },
+    { key: "testimonials", icon: "⭐", label: "Testimonials" },
   ];
 
   return (
@@ -720,6 +740,186 @@ export default function AdminPage() {
                           </td>
                         </tr>
                       )}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ── COUPONS ── */}
+            {section === "coupons" && (
+              <motion.div key="coupons" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-[0.6rem] tracking-widest uppercase text-[var(--mid)]">{coupons.length} coupons</span>
+                </div>
+                
+                {/* ADD COUPON */}
+                <div className="bg-[var(--beige)] border border-[var(--border)] p-5 mb-8">
+                  <h3 className="text-[0.55rem] tracking-widest uppercase text-[var(--gold)] mb-4">Add a new coupon</h3>
+                  <div className="grid md:grid-cols-[1fr_1fr_1fr_1fr_auto] gap-4 items-end">
+                     <div>
+                       <label className="block text-[0.45rem] tracking-[0.2em] uppercase text-[var(--mid)] mb-1.5">Code</label>
+                       <input id="c-code" type="text" className="input-base text-[0.6rem]" placeholder="SUMMER20" />
+                     </div>
+                     <div>
+                       <label className="block text-[0.45rem] tracking-[0.2em] uppercase text-[var(--mid)] mb-1.5">Type</label>
+                       <select id="c-type" className="input-base text-[0.6rem]">
+                         <option value="percentage">Percentage (%)</option>
+                         <option value="fixed">Fixed Amount (₹)</option>
+                       </select>
+                     </div>
+                     <div>
+                       <label className="block text-[0.45rem] tracking-[0.2em] uppercase text-[var(--mid)] mb-1.5">Value</label>
+                       <input id="c-val" type="number" className="input-base text-[0.6rem]" placeholder="20" />
+                     </div>
+                     <button
+                       onClick={async () => {
+                          const code = (document.getElementById('c-code') as HTMLInputElement)?.value;
+                          const type = (document.getElementById('c-type') as HTMLSelectElement)?.value;
+                          const val = (document.getElementById('c-val') as HTMLInputElement)?.value;
+                          if (!code || !val) return toast.error('Code and Value required');
+                          try {
+                            await adminApi.createCoupon(password, { code, discount_type: type, discount_value: val });
+                            toast.success('Coupon added!');
+                            fetchCoupons();
+                          } catch (e: any) { toast.error(e.message); }
+                       }}
+                       className="btn-primary w-full py-3"
+                     >Add Coupon</button>
+                  </div>
+                </div>
+
+                <div className="bg-[var(--offwhite)] border border-[var(--border)] overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-[var(--border)]">
+                        {["Code", "Type", "Value", "Active", "Action"].map((h) => (
+                          <th key={h} className="px-4 py-3 text-left text-[0.48rem] tracking-[0.25em] uppercase text-[var(--light)] font-medium">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {coupons.map((c: any) => (
+                        <tr key={c.id} className="border-b border-[var(--border)] hover:bg-[var(--beige)]/30 transition-colors">
+                          <td className="px-4 py-3 text-[0.63rem] font-medium text-[var(--text)]">{c.code}</td>
+                          <td className="px-4 py-3 text-[0.6rem] text-[var(--mid)] capitalize">{c.discount_type}</td>
+                          <td className="px-4 py-3 text-[0.6rem] text-[var(--mid)]">{c.discount_value}</td>
+                          <td className="px-4 py-3">
+                            <button onClick={async () => {
+                              try {
+                                await adminApi.updateCoupon(password, c.id, { is_active: !c.is_active });
+                                fetchCoupons();
+                              } catch { toast.error('Failed to update') }
+                            }} className={`text-[0.44rem] tracking-widest uppercase px-2.5 py-1 border transition-all ${c.is_active ? "border-green-300 text-green-600" : "border-red-200 text-red-400"}`}>
+                              {c.is_active ? "Yes" : "No"}
+                            </button>
+                          </td>
+                          <td className="px-4 py-3">
+                            <button onClick={async () => {
+                              if(!confirm('Delete coupon?')) return;
+                              try { await adminApi.deleteCoupon(password, c.id); toast.success('Deleted'); fetchCoupons(); } catch { toast.error('Failed to delete') }
+                            }} className="text-[0.48rem] tracking-widest uppercase border border-[var(--border)] px-2 py-1 text-[var(--mid)] hover:border-red-400 hover:text-red-400 transition-all">
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {coupons.length === 0 && <tr><td colSpan={5} className="text-center py-12 text-[0.6rem] text-[var(--light)]">No coupons</td></tr>}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ── TESTIMONIALS ── */}
+            {section === "testimonials" && (
+              <motion.div key="testimonials" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-[0.6rem] tracking-widest uppercase text-[var(--mid)]">{testimonials.length} testimonials</span>
+                </div>
+                
+                {/* ADD TESTIMONIAL */}
+                <div className="bg-[var(--beige)] border border-[var(--border)] p-5 mb-8">
+                  <h3 className="text-[0.55rem] tracking-widest uppercase text-[var(--gold)] mb-4">Add a testimonial</h3>
+                  <div className="grid md:grid-cols-2 gap-4 items-end">
+                     <div className="col-span-2">
+                       <label className="block text-[0.45rem] tracking-[0.2em] uppercase text-[var(--mid)] mb-1.5">Review Text</label>
+                       <textarea id="t-text" className="input-base text-[0.6rem] h-16" placeholder='"Amazing quality..."'></textarea>
+                     </div>
+                     <div>
+                       <label className="block text-[0.45rem] tracking-[0.2em] uppercase text-[var(--mid)] mb-1.5">Author</label>
+                       <input id="t-author" type="text" className="input-base text-[0.6rem]" placeholder="Aryan K." />
+                     </div>
+                     <div>
+                       <label className="block text-[0.45rem] tracking-[0.2em] uppercase text-[var(--mid)] mb-1.5">Location</label>
+                       <input id="t-loc" type="text" className="input-base text-[0.6rem]" placeholder="New Delhi" />
+                     </div>
+                     <div>
+                       <label className="block text-[0.45rem] tracking-[0.2em] uppercase text-[var(--mid)] mb-1.5">Product Mentioned</label>
+                       <input id="t-prod" type="text" className="input-base text-[0.6rem]" placeholder="Void Oversized Jacket" />
+                     </div>
+                     <div>
+                       <label className="block text-[0.45rem] tracking-[0.2em] uppercase text-[var(--mid)] mb-1.5">Stars</label>
+                       <input id="t-stars" type="number" className="input-base text-[0.6rem]" placeholder="5" min="1" max="5" defaultValue="5" />
+                     </div>
+                     <div className="col-span-2">
+                       <button
+                         onClick={async () => {
+                            const text = (document.getElementById('t-text') as HTMLTextAreaElement)?.value;
+                            const author = (document.getElementById('t-author') as HTMLInputElement)?.value;
+                            const loc = (document.getElementById('t-loc') as HTMLInputElement)?.value;
+                            const prod = (document.getElementById('t-prod') as HTMLInputElement)?.value;
+                            const stars = (document.getElementById('t-stars') as HTMLInputElement)?.value;
+                            if (!text || !author) return toast.error('Text and Author required');
+                            try {
+                              await adminApi.createTestimonial(password, { text, author, location: loc, product: prod, stars });
+                              toast.success('Testimonial added!');
+                              fetchTestimonials();
+                            } catch (e: any) { toast.error(e.message); }
+                         }}
+                         className="btn-primary px-8 py-3 w-auto inline-block"
+                       >Add Testimonial</button>
+                     </div>
+                  </div>
+                </div>
+
+                <div className="bg-[var(--offwhite)] border border-[var(--border)] overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-[var(--border)]">
+                        {["Author", "Location", "Product", "Stars", "Active", "Action"].map((h) => (
+                          <th key={h} className="px-4 py-3 text-left text-[0.48rem] tracking-[0.25em] uppercase text-[var(--light)] font-medium">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {testimonials.map((t: any) => (
+                        <tr key={t.id} className="border-b border-[var(--border)] hover:bg-[var(--beige)]/30 transition-colors">
+                          <td className="px-4 py-3 text-[0.63rem] font-medium text-[var(--text)]">{t.author}</td>
+                          <td className="px-4 py-3 text-[0.6rem] text-[var(--mid)]">{t.location}</td>
+                          <td className="px-4 py-3 text-[0.6rem] text-[var(--mid)]">{t.product}</td>
+                          <td className="px-4 py-3 text-[0.6rem] text-[var(--mid)]">{t.stars} ★</td>
+                          <td className="px-4 py-3">
+                            <button onClick={async () => {
+                              try {
+                                await adminApi.updateTestimonial(password, t.id, { is_active: !t.is_active });
+                                fetchTestimonials();
+                              } catch { toast.error('Failed to update') }
+                            }} className={`text-[0.44rem] tracking-widest uppercase px-2.5 py-1 border transition-all ${t.is_active ? "border-green-300 text-green-600" : "border-red-200 text-red-400"}`}>
+                              {t.is_active ? "Yes" : "No"}
+                            </button>
+                          </td>
+                          <td className="px-4 py-3">
+                            <button onClick={async () => {
+                              if(!confirm('Delete testimonial?')) return;
+                              try { await adminApi.deleteTestimonial(password, t.id); toast.success('Deleted'); fetchTestimonials(); } catch { toast.error('Failed to delete') }
+                            }} className="text-[0.48rem] tracking-widest uppercase border border-[var(--border)] px-2 py-1 text-[var(--mid)] hover:border-red-400 hover:text-red-400 transition-all">
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {testimonials.length === 0 && <tr><td colSpan={6} className="text-center py-12 text-[0.6rem] text-[var(--light)]">No testimonials</td></tr>}
                     </tbody>
                   </table>
                 </div>

@@ -41,7 +41,7 @@ export default function BrandShowcase() {
           </p>
 
           <a
-            href="https://instagram.com/dustnrare"
+            href="https://instagram.com/dustnrare.in"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center px-10 py-5 bg-[var(--text)] text-[var(--offwhite)] text-[0.55rem] tracking-[0.3em] uppercase font-semibold hover:bg-[var(--gold)] transition-colors duration-500"

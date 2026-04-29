@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/store";
-import { ordersApi } from "@/lib/api";
+import { ordersApi, couponsApi } from "@/lib/api";
 import toast from "react-hot-toast";
 
 type SendMethod = "whatsapp" | "email" | null;
@@ -34,6 +34,11 @@ export default function CheckoutPage() {
   const { items, total, clearCart } = useCartStore();
   const [placing, setPlacing] = useState(false);
   const [method, setMethod] = useState<SendMethod>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [address, setAddress] = useState({
     name: "",
@@ -45,9 +50,40 @@ export default function CheckoutPage() {
     pincode: "",
   });
 
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [verifyingCoupon, setVerifyingCoupon] = useState(false);
+
   const subtotal = total();
   const shipping = subtotal >= 999 ? 0 : 60;
-  const grandTotal = subtotal + shipping;
+  
+  let discountAmt = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.discount_type === 'percentage') {
+      discountAmt = (subtotal * appliedCoupon.discount_value) / 100;
+    } else {
+      discountAmt = appliedCoupon.discount_value;
+    }
+  }
+  
+  const grandTotal = Math.max(0, subtotal + shipping - discountAmt);
+
+  async function handleApplyCoupon() {
+    if (!couponCode.trim()) return;
+    setVerifyingCoupon(true);
+    try {
+      const data = await couponsApi.verify(couponCode.trim());
+      setAppliedCoupon(data.coupon);
+      toast.success("Coupon applied!");
+    } catch (err: any) {
+      setAppliedCoupon(null);
+      toast.error(err.message || "Invalid coupon");
+    } finally {
+      setVerifyingCoupon(false);
+    }
+  }
+
+  if (!mounted) return null;
 
   if (!items.length)
     return (
@@ -102,6 +138,7 @@ export default function CheckoutPage() {
         subtotal,
         shipping,
         total: grandTotal,
+        coupon: appliedCoupon ? appliedCoupon.code : null,
       });
 
       clearCart();
@@ -321,10 +358,33 @@ export default function CheckoutPage() {
             </div>
 
             <div className="space-y-2 pt-4 border-t border-[var(--border)]">
+              {/* COUPON INPUT */}
+              <div className="mb-4 flex gap-2">
+                <input 
+                  value={couponCode} 
+                  onChange={e => setCouponCode(e.target.value)} 
+                  placeholder="Coupon Code" 
+                  className="input-base flex-1 py-2 text-xs" 
+                  disabled={!!appliedCoupon}
+                />
+                {appliedCoupon ? (
+                  <button onClick={() => { setAppliedCoupon(null); setCouponCode(''); }} className="px-4 bg-[var(--text)] text-[var(--offwhite)] text-[0.55rem] uppercase tracking-widest transition-colors hover:bg-red-500">Remove</button>
+                ) : (
+                  <button onClick={handleApplyCoupon} disabled={verifyingCoupon || !couponCode} className="px-4 bg-[var(--text)] text-[var(--offwhite)] text-[0.55rem] uppercase tracking-widest disabled:opacity-50 transition-colors hover:bg-[var(--gold)]">
+                    {verifyingCoupon ? "..." : "Apply"}
+                  </button>
+                )}
+              </div>
               <div className="flex justify-between text-[0.6rem] text-[var(--mid)]">
                 <span>Subtotal</span>
                 <span>₹{subtotal.toLocaleString()}</span>
               </div>
+              {appliedCoupon && (
+                <div className="flex justify-between text-[0.6rem] text-green-600">
+                  <span>Discount ({appliedCoupon.code})</span>
+                  <span>-₹{discountAmt.toLocaleString()}</span>
+                </div>
+              )}
               <div className="flex justify-between text-[0.6rem] text-[var(--mid)]">
                 <span>Shipping</span>
                 <span className={shipping === 0 ? "text-green-600" : ""}>

@@ -24,7 +24,7 @@ export default function Hero() {
       </motion.div>
 
       {/* Top-right editorial label (Hidden on narrow mobile, visible tablet+) */}
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 1 }}
@@ -36,20 +36,20 @@ export default function Hero() {
         <div className="text-[0.45rem] tracking-[0.55em] uppercase text-white/50">
           Est. 2025
         </div>
-      </motion.div>
+      </motion.div> */}
 
       {/* Main Content (Responsive Alignment - Centered on Mobile, Left on Desktop) */}
       <div className="relative z-10 h-full flex flex-col justify-center md:justify-end px-6 sm:px-10 md:px-16 pb-16 md:pb-24 max-w-[1600px] mx-auto items-center md:items-start text-center md:text-left">
-        
+
         {/* Season tag */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
           className="px-3 py-1 border border-white/30 text-white/70 text-[0.45rem] md:text-[0.5rem] tracking-[0.4em] uppercase mb-6 md:mb-8 w-fit backdrop-blur-sm"
         >
           SS '25 Collection
-        </motion.div>
+        </motion.div> */}
 
         {/* Oversized headline - Added pb-4 to fix text cutting off at the bottom */}
         <div className="overflow-hidden w-full">
@@ -94,7 +94,7 @@ export default function Hero() {
               </span>
               <span className="w-6 h-px bg-white/40 group-hover:w-full group-hover:bg-[var(--gold)] transition-all duration-500" />
             </Link>
-            
+
             <Link
               href="/shop?gender=women"
               className="group flex flex-col gap-1 items-center"
@@ -108,7 +108,7 @@ export default function Hero() {
         </motion.div>
 
         {/* Scroll indicator */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2, duration: 1 }}
@@ -127,7 +127,7 @@ export default function Hero() {
           <span className="text-[0.4rem] tracking-[0.4em] uppercase text-white/30 writing-mode-vertical rotate-180">
             Scroll
           </span>
-        </motion.div>
+        </motion.div> */}
       </div>
     </section>
   );

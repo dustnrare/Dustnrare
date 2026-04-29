@@ -7,7 +7,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { items, address, paymentMethod, subtotal, shipping, total } = body
+    const { items, address, paymentMethod, subtotal, shipping, total, coupon } = body
 
     if (!items?.length) {
       return NextResponse.json({ message: 'Cart is empty' }, { status: 400 })
@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
         address,
         payment_method: paymentMethod,
         status: 'placed',
+        notes: coupon ? `Applied Coupon: ${coupon}` : null,
       })
       .select()
       .single()
@@ -89,7 +90,7 @@ Items:
 ${itemLines}
 
 Subtotal: ₹${subtotal.toLocaleString('en-IN')}
-Shipping: ${shipping === 0 ? 'Free' : '₹' + shipping}
+${coupon ? `Discount Code: ${coupon}\n` : ''}Shipping: ${shipping === 0 ? 'Free' : '₹' + shipping}
 *Total: ₹${total.toLocaleString('en-IN')}*
 
 Delivery to:
@@ -114,7 +115,7 @@ ITEMS:
 ${items.map((i: any) => `${i.name} x${i.qty} (Size: ${i.size}) — Rs.${i.price * i.qty}`).join('\n')}
 
 Subtotal: Rs.${subtotal}
-Shipping: ${shipping === 0 ? 'Free' : 'Rs.' + shipping}
+${coupon ? `Discount Code: ${coupon}\n` : ''}Shipping: ${shipping === 0 ? 'Free' : 'Rs.' + shipping}
 Total: Rs.${total}
 
 DELIVERY ADDRESS:
@@ -167,6 +168,12 @@ Payment: Pending (UPI/bank transfer)`)
                     <span style="font-size: 13px; color: #6b635c;">Subtotal</span>
                     <span style="font-size: 13px; color: #2a2622;">Rs.${subtotal.toLocaleString('en-IN')}</span>
                   </div>
+                  ${coupon ? `
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-size: 13px; color: #6b635c;">Discount (${coupon})</span>
+                    <span style="font-size: 13px; color: #2a2622;">-Rs.${(subtotal + shipping - total).toLocaleString('en-IN')}</span>
+                  </div>
+                  ` : ''}
                   <div style="display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #eae3dc;">
                     <span style="font-size: 13px; color: #6b635c;">Shipping</span>
                     <span style="font-size: 13px; color: #2a2622;">${shipping === 0 ? 'Free' : 'Rs.' + shipping}</span>

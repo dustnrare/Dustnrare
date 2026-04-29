@@ -1,32 +1,24 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-
-const REVIEWS = [
-  {
-    stars: 5,
-    text: '"The oversized jacket is unreal. Got so many compliments and nobody could guess where it was from — that\'s the whole point."',
-    author: 'Aryan K.',
-    location: 'New Delhi',
-    product: 'Void Oversized Jacket',
-  },
-  {
-    stars: 5,
-    text: '"The quality is better than anything I\'ve found at Zara or H&M at this price. The fabric actually feels premium. Will be buying every drop."',
-    author: 'Priya M.',
-    location: 'Mumbai',
-    product: 'Sand Washed Tunic',
-  },
-  {
-    stars: 5,
-    text: '"I love that pieces are limited. When my drop arrived I felt like I\'d gotten something genuinely rare. That feeling is hard to find."',
-    author: 'Siddharth V.',
-    location: 'Bangalore',
-    product: 'Rare Cocoon Coat',
-  },
-]
+import { testimonialsApi } from '@/lib/api'
 
 export default function Reviews() {
+  const [reviews, setReviews] = useState<any[]>([])
+
+  useEffect(() => {
+    testimonialsApi.getActive()
+      .then(data => {
+        if (data.testimonials && data.testimonials.length > 0) {
+          setReviews(data.testimonials)
+        }
+      })
+      .catch(console.error)
+  }, [])
+
+  if (!reviews.length) return null
+
   return (
     <section className="py-24 bg-[var(--offwhite)]">
       <div className="max-w-[1360px] mx-auto px-6 md:px-12">
@@ -43,7 +35,7 @@ export default function Reviews() {
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-px bg-[var(--border)]">
-          {REVIEWS.map((r, i) => (
+          {reviews.map((r, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 30 }}
